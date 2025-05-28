@@ -1,0 +1,346 @@
+/* Base */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #18181B;
+  color: white;
+}
+
+/* Layout */
+.homepage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+@media (min-width: 768px) {
+  .homepage {
+    flex-direction: row;
+  }
+}
+
+/* Panels */
+.left-panel {
+  flex: 1;
+  background-color: #18181B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.left-content {
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Logo & title combo */
+.logo-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.logo-img {
+  width: 36px;
+  height: 36px;
+}
+
+.email-input {
+  padding: 0.75rem;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #2a2a2e;
+  color: white;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.email-input:focus {
+  border-color: #135DFC;
+  box-shadow: 0 0 0 2px rgba(19, 93, 252, 0.4);
+}
+
+/* Style native checkbox when checked */
+input[type='checkbox'] {
+  accent-color: #135DFC;
+  width: 16px;
+  height: 16px;
+  margin-bottom: 2px;
+}
+
+
+/* Checkbox alignment */
+.remember-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;;
+  color: #d1d5db;
+  font-size: 0.9rem;
+}
+
+/* Sign up text */
+.signup-text {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #d1d5db;
+}
+
+.signup-text a {
+  color: #135DFC;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.signup-text a:hover {
+  text-decoration: underline;
+}
+
+
+.right-panel {
+  flex: 1;
+  background-color: #202022;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  gap: 2rem;
+  position: relative;
+}
+
+/* Typography */
+.brand {
+  color: #135DFC;
+  font-size: 1.75rem;
+  font-weight: bold;
+}
+
+.headline {
+  font-size: 2.5rem;
+  margin: 1rem 0;
+  color: #ffffff;
+}
+
+.subtext {
+  color: #d1d5db;
+  margin-bottom: 2rem;
+}
+
+/* Login Box */
+.login-box {
+  background-color: #1f1f22;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.google-btn,
+.email-btn {
+  background-color: #135DFC;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.google-btn:hover,
+.email-btn:hover {
+  transform: scale(1.01);
+}
+
+.divider {
+  color: #a1a1aa;
+  font-size: 0.85rem;
+}
+
+.email-input {
+  padding: 0.75rem;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #2a2a2e;
+  color: white;
+}
+
+.learn-more {
+  background: none;
+  border: none;
+  color: #135DFC;
+  margin-top: 2rem;
+  cursor: pointer;
+}
+
+/* Chat Bubble */
+.chat-bubble {
+  background: #2c2c2f;
+  color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+/* Response Box */
+.response-box {
+  background: #1f1f22;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Overlay bubble on chart */
+.chat-overlay {
+  position: absolute;
+  top: -1.5rem;
+  left: 2rem;
+  background-color: white;
+  color: #18181B;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+/* Chart Box */
+.chart-wrapper {
+  position: relative;
+  margin-top: 2.5rem;
+}
+
+.chart-box {
+  background: white;
+  color: black;
+  padding: 1rem 1rem 2rem 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 400px;
+  margin: auto;
+  position: relative;
+}
+
+.chart-box h4 {
+  color: #18181B;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.bars {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 180px;
+  gap: 1rem;
+  padding-top: 10px;
+}
+
+/* Bar base */
+.bar {
+  width: 48px;
+  text-align: center;
+  color: white;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 500;
+  transform: scaleY(0);
+  animation: growBar 0.8s ease-out forwards;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Stagger effect */
+.bar:nth-child(1) { animation-delay: 0.1s; }
+.bar:nth-child(2) { animation-delay: 0.2s; }
+.bar:nth-child(3) { animation-delay: 0.3s; }
+.bar:nth-child(4) { animation-delay: 0.4s; }
+.bar:nth-child(5) { animation-delay: 0.5s; }
+
+/* Gradient colors */
+.bar:nth-child(1) {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+}
+.bar:nth-child(2) {
+  background: linear-gradient(135deg, #10b981, #34d399);
+}
+.bar:nth-child(3) {
+  background: linear-gradient(135deg, #fbbf24, #fcd34d);
+}
+.bar:nth-child(4) {
+  background: linear-gradient(135deg, #a855f7, #d8b4fe);
+}
+.bar:nth-child(5) {
+  background: linear-gradient(135deg, #f97316, #fdba74);
+}
+
+/* Tooltip on hover */
+.bar:hover {
+  transform: scaleY(1.05);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+.bar::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 110%;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.2s ease;
+  pointer-events: none;
+  font-size: 0.7rem;
+}
+
+.bar:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 1.2s ease-in;
+}
+
+.slide-in {
+  animation: slideIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes growBar {
+  to { transform: scaleY(1); }
+}
