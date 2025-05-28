@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Sidebar.css';
+import './sidebar.css';
 import { FaChevronLeft, FaChevronDown } from 'react-icons/fa';
 import logo from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
