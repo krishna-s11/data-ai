@@ -9,7 +9,7 @@ export const logout = () => {
   // Show toast and redirect
   toast.info('You have been logged out.', {
     onClose: () => {
-      window.location.href = '/auth';
+      window.location.href = '/';
     },
     autoClose: 2000,
   });
