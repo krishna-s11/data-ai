@@ -65,7 +65,7 @@ const Sidebar = () => {
               <li>Get help</li>
               <li>View all plans</li>
               <li>Learn more</li>
-              <li onClick={logout}>Log out</li>
+              <li onClick={() => {logout(navigate)}}>Log out</li>
             </ul>
           </div>
         )}
