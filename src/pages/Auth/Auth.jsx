@@ -13,45 +13,45 @@ const AuthPage = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    if (!email || !password) {
-      setError("Email and password are required.");
-      setLoading(false);
-      return;
-    }
-    setError("");
-    setLoading(true);
-    const endpoint = isRegistering
-      ? "https://backend.data-ai.co/auth/register"
-      : "https://backend.data-ai.co/auth/login";
-    console.log(endpoint);
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+  //   if (!email || !password) {
+  //     setError("Email and password are required.");
+  //     setLoading(false);
+  //     return;
+  //   }
+  //   setError("");
+  //   setLoading(true);
+  //   const endpoint = isRegistering
+  //     ? "https://backend.data-ai.co/auth/register"
+  //     : "https://backend.data-ai.co/auth/login";
+  //   console.log(endpoint);
+  //   try {
+  //     const response = await fetch(endpoint, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ email, password }),
+  //     });
 
-      const data = await response.json();
-      if (response.ok) {
-        if (isRegistering) {
-          setIsRegistering(false);
-          setEmail("");
-          setPassword("");
-        } else {
-          const storage = remember ? localStorage : sessionStorage;
-          storage.setItem("access_token", data.access_token);
-          navigate("/chat");
-        }
-      } else {
-        setError(data.detail || "Something went wrong");
-      }
-    } catch (error) {
-      setError("Error connecting to server");
-    } finally {
-      setLoading(false);
-    }
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       if (isRegistering) {
+  //         setIsRegistering(false);
+  //         setEmail("");
+  //         setPassword("");
+  //       } else {
+  //         const storage = remember ? localStorage : sessionStorage;
+  //         storage.setItem("access_token", data.access_token);
+  //         navigate("/chat");
+  //       }
+  //     } else {
+  //       setError(data.detail || "Something went wrong");
+  //     }
+  //   } catch (error) {
+  //     setError("Error connecting to server");
+  //   } finally {
+  //     setLoading(false);
+  //   }
   };
 
   return (
