@@ -5,7 +5,6 @@
   color: white;
 }
 
-/* Sidebar */
 .sidebar {
   width: 300px;
   background-color: #1f1f22;
@@ -13,9 +12,9 @@
   display: flex;
   flex-direction: column;
   padding: 1rem;
+  transition: all 0.3s ease;
 }
 
-/* Main window */
 .main-window {
   flex: 1;
   background-color: #202022;
@@ -25,4 +24,107 @@
   padding: 1.5rem;
 }
 
+.home-layout {
+  display: flex;
+  height: 100vh;
+  background-color: #18181B;
+  color: white;
+  position: relative;
+}
 
+/* Hide toggle on large screens */
+.mobile-toggle {
+  position: absolute;
+  top: 1.4rem;
+  right: 3.5rem;
+  background: transparent;
+  border: none;
+  color: #eee ;
+  font-size: 1.5rem;
+  z-index: 1001;
+  display: none;
+}
+
+/* Show on mobile */
+@media (max-width: 768px) {
+  .mobile-toggle {
+    display: block;
+  }
+
+  .sidebar-drawer {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 260px;
+    height: 100%;
+    background-color: #1f1f22;
+    transition: left 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  .sidebar-drawer.open {
+    left: 0;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+  }
+
+  .main-window {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+}
+
+/* Default Desktop Sidebar */
+.sidebar-drawer {
+  width: 260px;
+  background-color: #1f1f22;
+  border-right: 1px solid #2d2d2d;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  height: 100vh;
+}
+
+@media (min-width: 769px) {
+  .overlay {
+    display: none;
+  }
+
+  .sidebar-drawer {
+    position: static;
+    left: 0;
+  }
+
+  .main-window {
+    padding: 1.5rem;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .home-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #2d2d2d;
+  }
+
+  .main-window {
+    padding: 1rem;
+  }
+}

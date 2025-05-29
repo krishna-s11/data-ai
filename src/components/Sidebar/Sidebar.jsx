@@ -5,13 +5,13 @@ import logo from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
 import {logout} from '../../utility/logout';
 
-const Sidebar = () => {
+const Sidebar = ({ closeSidebar }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
-    <div className={`sidebar-container ${collapsed ? 'collapsed' : ''}`} onClick={() => collapsed && setCollapsed(false)}>
+     <div className="sidebar-container" onClick={() => window.innerWidth <= 768 && closeSidebar()}>
       <div className="collapse-toggle" onClick={(e) => { e.stopPropagation(); setCollapsed(!collapsed); }}>
         {/* <FaChevronLeft className={`collapse-icon ${collapsed ? 'rotated' : ''}`} /> */}
       </div>

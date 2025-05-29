@@ -13,6 +13,11 @@ const AuthPage = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
+    if (!email || !password) {
+      setError("Email and password are required.");
+      setLoading(false);
+      return;
+    }
     setError("");
     setLoading(true);
     const endpoint = isRegistering
@@ -69,6 +74,7 @@ const AuthPage = () => {
               placeholder="Enter your email"
               className="email-input"
               value={email}
+              required
               onChange={(e) => setEmail(e.target.value)}
             />
             <input
@@ -76,6 +82,7 @@ const AuthPage = () => {
               placeholder="Enter your password"
               className="email-input"
               value={password}
+              required
               onChange={(e) => setPassword(e.target.value)}
             />
             {error && <div className="error-text">{error}</div>}
@@ -90,7 +97,7 @@ const AuthPage = () => {
                 <label htmlFor="remember">Remember me</label>
               </div>
             )}
-            <button type="submit" className="email-btn scale-hover" disabled={loading}>
+            <button type="submit" className="email-btn scale-hover" disabled={loading || !email || !password}>
               {loading
                 ? "Loading..."
                 : isRegistering
@@ -102,12 +109,12 @@ const AuthPage = () => {
               {isRegistering ? (
                 <>
                   Already have an account?{' '}
-                  <a href="#" onClick={() => setIsRegistering(false)}>Login</a>
+                  <span onClick={() => setIsRegistering(false)} className="link-like">Login</span>
                 </>
               ) : (
                 <>
                   Don't have an account?{' '}
-                  <a href="#" onClick={() => setIsRegistering(true)}>Sign up</a>
+                  <span onClick={() => setIsRegistering(true)} className="link-like">Sign up</span>
                 </>
               )}
             </div>

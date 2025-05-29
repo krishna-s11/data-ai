@@ -29,6 +29,12 @@ body {
   padding: 2rem;
 }
 
+.link-like {
+  color: #135DFC;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .left-content {
   text-align: center;
   max-width: 400px;

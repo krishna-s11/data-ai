@@ -220,3 +220,32 @@
   margin-top: 0.25rem;
   color: #d1d5db;
 }
+@media (max-width: 768px) {
+  .chat-header,
+  .chat-input,
+  .bubble,
+  .suggestion-card {
+    font-size: 0.9rem;
+  }
+
+  .chat-panel {
+    padding: 0.75rem;
+  }
+
+  .bubble {
+    max-width: 90%;
+  }
+
+  .chat-input input {
+    font-size: 0.9rem;
+  }
+
+  .send-btn {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .messages-container {
+    gap: 0.75rem;
+  }
+}
