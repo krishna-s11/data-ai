@@ -236,8 +236,13 @@
     font-size: 0.9rem;
   }
 
+
   .chat-panel {
     padding: 0.75rem;
+  }
+
+  .message.bot{
+    padding-left: 0.50rem;
   }
 
   .bubble {

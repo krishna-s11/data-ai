@@ -268,5 +268,6 @@
   .sidebar-footer {
     margin-top: auto;
     padding-top: 1rem;
+    margin-bottom: 100px;
   }
 }

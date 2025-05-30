@@ -14,10 +14,20 @@ const ChatPanel = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const res = await api.get('/auth/me');
+      setUser(res.data);
+    };
+
+    getUser();
+  },[])
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -100,7 +110,7 @@ const ChatPanel = () => {
                 {msg.type === 'user' && msg.text}
               </div>
 
-              {msg.type === 'user' && <div className="avatar user-avatar">K</div>}
+              {msg.type === 'user' && <div className="avatar user-avatar">{user?.username.charAt(0)}</div>}
             </div>
           ))}
           <div ref={messagesEndRef} />

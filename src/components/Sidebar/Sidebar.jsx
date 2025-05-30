@@ -61,9 +61,9 @@ const Sidebar = ({ closeSidebar }) => {
 
         {!collapsed && menuOpen && (
           <div className="user-menu">
-            <p className="email">krishnasaxena69@gmail.com</p>
+            <p className="email">{user?.email}</p>
             <div className="menu-user-info">
-              <div className="avatar-circle">K</div>
+              <div className="avatar-circle">{user?.username.charAt(0)}</div>
               <div>
                 <p className="user-name">Personal</p>
                 <p className="user-plan">Free plan</p>
