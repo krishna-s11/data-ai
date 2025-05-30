@@ -1,64 +1,63 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './authPage.css';
 import logo from "../../assets/logo.png";
 import { useNavigate } from 'react-router-dom';
+import api from '../../utility/api';
 
 const AuthPage = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
-  //   if (!email || !password) {
-  //     setError("Email and password are required.");
-  //     setLoading(false);
-  //     return;
-  //   }
-  //   setError("");
-  //   setLoading(true);
-  //   const endpoint = isRegistering
-  //     ? "https://backend.data-ai.co/auth/register"
-  //     : "https://backend.data-ai.co/auth/login";
-  //   console.log(endpoint);
-  //   try {
-  //     const response = await fetch(endpoint, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ email, password }),
-  //     });
+  useEffect(() => {
+    const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+    if (token) {
+      navigate('/chat');
+    }
+  }, [navigate]);
 
-  //     const data = await response.json();
-  //     if (response.ok) {
-  //       if (isRegistering) {
-  //         setIsRegistering(false);
-  //         setEmail("");
-  //         setPassword("");
-  //       } else {
-  //         const storage = remember ? localStorage : sessionStorage;
-  //         storage.setItem("access_token", data.access_token);
-  //         navigate("/chat");
-  //       }
-  //     } else {
-  //       setError(data.detail || "Something went wrong");
-  //     }
-  //   } catch (error) {
-  //     setError("Error connecting to server");
-  //   } finally {
-  //     setLoading(false);
-  //   }
+  const handleSubmit = async () => {
+    if (!email || !password || (isRegistering && !username)) {
+      setError("All fields are required.");
+      setLoading(false);
+      return;
+    }
+    setError("");
+    setLoading(true);
+    const endpoint = isRegistering ? "/auth/register" : "/auth/login";
+    const payload = isRegistering ? { email, password, username } : { identifier: email, password };
+
+    try {
+      const response = await api.post(endpoint, payload);
+      const data = response.data;
+
+      if (isRegistering) {
+        setIsRegistering(false);
+        setUsername("");
+        setEmail("");
+        setPassword("");
+      } else {
+        const storage = remember ? localStorage : sessionStorage;
+        storage.setItem("access_token", data.access_token);
+        navigate("/chat");
+      }
+    } catch (error) {
+      setError(error.response?.data?.detail || "Error connecting to server");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="homepage">
       <div className="left-panel dark">
         <div className="left-content">
-          <div className="logo-title">
+          <div className="logo-title" onClick={() => { window.location.href = 'https://data-ai.co' }}>
             <img src={logo} alt="Logo" className="logo-img" />
             <h1 className="brand">Data AI</h1>
           </div>
@@ -67,7 +66,14 @@ const AuthPage = () => {
 
           <form className="login-box fade-in" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
             {isRegistering && (
-              <input type="text" placeholder="Enter your name" className="email-input" disabled />
+              <input
+                type="text"
+                placeholder="Enter your username"
+                className="email-input"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
             )}
             <input
               type="email"
@@ -101,8 +107,8 @@ const AuthPage = () => {
               {loading
                 ? "Loading..."
                 : isRegistering
-                ? "Register with email"
-                : "Continue with email"}
+                  ? "Register with email"
+                  : "Continue with email"}
             </button>
             <div className="divider">OR</div>
             <div className="signup-text">
@@ -119,7 +125,6 @@ const AuthPage = () => {
               )}
             </div>
           </form>
-
         </div>
       </div>
 

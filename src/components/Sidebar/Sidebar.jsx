@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './sidebar.css';
 import { FaChevronLeft, FaChevronDown } from 'react-icons/fa';
 import logo from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
 import {logout} from '../../utility/logout';
+import api from '../../utility/api';
 
 const Sidebar = ({ closeSidebar }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+
+  useEffect(() => {
+    const getUser = async () => {
+      const res = await api.get('/auth/me');
+      setUser(res.data);
+    };
+
+    getUser();
+  },[])
 
   return (
      <div className="sidebar-container" onClick={() => window.innerWidth <= 768 && closeSidebar()}>
@@ -37,10 +49,10 @@ const Sidebar = ({ closeSidebar }) => {
 
       <div className="sidebar-footer">
         <div className="user-info" onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}>
-          <div className="avatar-circle">K</div>
+          <div className="avatar-circle">{user?.username.charAt(0)}</div>
           {!collapsed && (
             <div>
-              <p className="user-name">Krishna</p>
+              <p className="user-name">{user?.username || 'User'}</p>
               <p className="user-plan">Free plan</p>
             </div>
           )}

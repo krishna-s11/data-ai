@@ -12,7 +12,7 @@ const ChatPanel = () => {
     },
   ]);
   const [input, setInput] = useState('');
-  const [selectedModel, setSelectedModel] = useState('Claude Sonnet 4');
+  const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -20,30 +20,54 @@ const ChatPanel = () => {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
 
-    const userMessage = { type: 'user', text: input.trim() };
-    setMessages(prev => [...prev, userMessage]);
+    const trimmed = input.trim();
+    setInput('');  // 🔁 Clear input immediately
+    setLoading(true);
+
+    const userMessage = { type: 'user', text: trimmed };
+    const loadingMessage = { type: 'bot', text: 'Thinking...' };
+
+    setMessages(prev => [...prev, userMessage, loadingMessage]);
 
     try {
-      const res = await api.post('/chat', { message: input.trim() });
+      const res = await api.post('/chat', { message: trimmed });
 
-      const botMessage = {
-        type: 'bot',
-        text: res.data.response || 'Okay.',
-        suggestions: res.data.suggestions || [],
-      };
+      // Remove the "Thinking..." message
+      setMessages(prev => prev.filter(msg => msg.text !== 'Thinking...'));
 
-      setMessages(prev => [...prev, botMessage]);
+      const newMessages = [];
+
+      if (res.data.response) {
+        newMessages.push({
+          type: 'bot',
+          text: res.data.response,
+        });
+      }
+
+      if (Array.isArray(res.data.suggestions)) {
+        res.data.suggestions.forEach((sug) => {
+          newMessages.push({
+            type: 'bot-suggestion',
+            description: sug.description,
+            action: sug.action,
+            service: sug.service,
+          });
+        });
+      }
+
+      setMessages(prev => [...prev, ...newMessages]);
     } catch (error) {
       setMessages(prev => [
-        ...prev,
+        ...prev.filter(msg => msg.text !== 'Thinking...'),
         { type: 'bot', text: 'Oops! Failed to connect to Data AI.' },
       ]);
     } finally {
-      setInput('');
+      setLoading(false);
     }
   };
+
 
   return (
     <div className="chat-panel">
@@ -60,24 +84,22 @@ const ChatPanel = () => {
       <div className="chat-messages">
         <div className="messages-container">
           {messages.map((msg, index) => (
-            <div key={index} className={`message ${msg.type}`}>
-              {msg.type === 'bot' && <img src={logo} alt="AI" className="logo-avatar" />}
-              <div className={`bubble ${msg.type === 'bot' ? 'bot-bubble' : ''}`}>
-                {msg.text}
-                {msg.type === 'bot' &&
-                  msg.suggestions &&
-                  msg.suggestions.length > 0 && (
-                    <div className="suggestions">
-                      {msg.suggestions.map((sug, idx) => (
-                        <div key={idx} className="suggestion-card">
-                          <strong>{sug.action}</strong>
-                          <div className="service-tag">{sug.service}</div>
-                          <p className="desc">{sug.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+            <div key={index} className={`message ${msg.type.startsWith('bot') ? 'bot' : msg.type}`}>
+              {msg.type.startsWith('bot') && (
+                <img src={logo} alt="AI" className="logo-avatar" />
+              )}
+
+              <div className={`bubble ${msg.type.startsWith('bot') ? 'bot-bubble' : ''}`}>
+                {msg.type === 'bot' && msg.text}
+                {msg.type === 'bot-suggestion' && (
+                  <>
+                    <p>{msg.description}</p>
+                    <button className="action-button">{msg.action}</button>
+                  </>
+                )}
+                {msg.type === 'user' && msg.text}
               </div>
+
               {msg.type === 'user' && <div className="avatar user-avatar">K</div>}
             </div>
           ))}
@@ -89,10 +111,11 @@ const ChatPanel = () => {
       <div className="chat-input">
         <input
           type="text"
-          placeholder="Reply to Data AI..."
+          placeholder={loading ? "Waiting for response..." : "Reply to Data AI..."}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          disabled={loading}
         />
 
         <div className="input-icons">
@@ -100,18 +123,7 @@ const ChatPanel = () => {
           <FaPenNib />
         </div>
 
-        {/* <select
-          className="model-select"
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-        >
-          <option>Claude Sonnet 4</option>
-          <option>GPT-4</option>
-          <option>Gemini 1.5 Pro</option>
-          <option>Mistral Medium</option>
-        </select> */}
-
-        <button className="send-btn" onClick={handleSend}>
+        <button className="send-btn" onClick={handleSend} disabled={loading}>
           <FaArrowUp />
         </button>
       </div>

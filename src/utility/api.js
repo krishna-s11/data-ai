@@ -30,7 +30,7 @@ api.interceptors.response.use(
         onClose: () => {
           localStorage.removeItem('access_token');
           sessionStorage.removeItem('access_token');
-          window.location.href = '/auth/login';
+          window.location.href = '/';
         },
         autoClose: 3000,
       });
