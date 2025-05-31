@@ -3,6 +3,7 @@ import './authPage.css';
 import logo from "../../assets/logo.png";
 import { useNavigate } from 'react-router-dom';
 import api from '../../utility/api';
+import { toast } from 'react-toastify';
 
 const AuthPage = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -37,6 +38,7 @@ const AuthPage = () => {
       const data = response.data;
 
       if (isRegistering) {
+        toast.success("Registered Successfully. Please login to access")
         setIsRegistering(false);
         setUsername("");
         setEmail("");
