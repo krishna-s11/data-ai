@@ -75,6 +75,7 @@ const ConnectApps = () => {
         headers: { Authorization: `Bearer ${access_token}` }
       });
       if (res.data.redirect_url) {
+        console.log(res.data.redirect_url);
         window.location.href = res.data.redirect_url;
       } else {
         toast.error(`No redirect URL received for ${service}`);
@@ -90,6 +91,22 @@ const ConnectApps = () => {
       }
     }
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("google") === "success") {
+      toast.success("Google account connected!");
+    }
+    if (params.get("slack") === "success") {
+      toast.success("Slack account connected!");
+    }
+    if (params.get("zoom") === "success") {
+      toast.success("Zoom account connected!");
+    }
+    if (params.get("notion") === "success") {
+      toast.success("Notion account connected!");
+    }
+  }, []);
 
   const allConnected = Object.values(connections).every(Boolean);
 
