@@ -78,7 +78,7 @@ const AuthPage = () => {
               />
             )}
             <input
-              type="email"
+              type={isRegistering?"email":"text"}
               placeholder="Enter your email"
               className="email-input"
               value={email}
