@@ -27,7 +27,7 @@ const ConnectApps = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const access_token = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
-
+  console.log(access_token);
   useEffect(() => {
     if (!access_token) {
       toast.error("No access token found. Please login.");

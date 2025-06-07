@@ -3,6 +3,7 @@ import './chatPanel.css';
 import { FaShareAlt, FaChevronDown, FaPlus, FaPenNib, FaArrowUp } from 'react-icons/fa';
 import logo from '../../assets/logo.png';
 import api from '../../utility/api';
+import { useNavigate } from 'react-router-dom';
 
 const ChatPanel = () => {
   const [messages, setMessages] = useState([
@@ -15,6 +16,7 @@ const ChatPanel = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -27,13 +29,13 @@ const ChatPanel = () => {
     };
 
     getUser();
-  },[])
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
 
     const trimmed = input.trim();
-    setInput('');  // 🔁 Clear input immediately
+    setInput('');
     setLoading(true);
 
     const userMessage = { type: 'user', text: trimmed };
@@ -44,7 +46,6 @@ const ChatPanel = () => {
     try {
       const res = await api.post('/chat', { message: trimmed });
 
-      // Remove the "Thinking..." message
       setMessages(prev => prev.filter(msg => msg.text !== 'Thinking...'));
 
       const newMessages = [];
@@ -78,6 +79,70 @@ const ChatPanel = () => {
     }
   };
 
+  const handleAction = async (msg) => {
+    console.log(msg);
+    if (msg.action.includes('Connect')) {
+      navigate("/connect");
+    } else if (msg.service === 'google_calendar') {
+      const res = await api.get('/list_calendar_events');
+      console.log(res.data.events);
+      let html;
+      if (res.data.events.length === 0) {
+        html = `<div>There are no upcoming events in your calendar</div>`;
+      } else {
+        html = res.data.events
+          .map((e, idx) => `
+            <div style="margin-bottom: 1rem;">
+              <div><strong>${idx + 1}. ${e.summary}</strong></div>
+              <div style="font-size: 0.9rem; color: #ccc;">
+                ${new Date(e.start).toLocaleString()} —
+                <a href="${e.link}" target="_blank" style="color: #60a5fa; text-decoration: underline;">Open event</a>
+              </div>
+            </div>
+          `)
+          .join('');
+      }
+
+      console.log(html);
+      setMessages(prev => [...prev, { type: 'bot-html', html }]);
+    } else if (msg.service === 'notion') {
+      const res = await api.get('/list_notion_pages');
+      let html;
+      if (res.data.pages.length === 0) {
+        html = `<div>There are no pages found in your notion</div>`;
+      } else {
+        html = res.data.pages
+          .map((e, idx) => `
+            <div style="margin-bottom: 1rem;">
+              <div><strong>${idx + 1}. ${e.title} - </strong><a href="${e.link}" target="_blank" style="color: #60a5fa; text-decoration: underline;">Open Notion</a></div>
+            </div>
+          `)
+          .join('');
+      }
+      console.log(res.data.pages);
+      setMessages(prev => [...prev, { type: 'bot-html', html }]);
+    } else if (msg.service === 'gmail') {
+      const res = await api.get('/list_gmail_messages');
+      let html;
+      if (res.data.messages.length === 0) {
+        html = `<div>There are no mails found in your mailbox</div>`;
+      } else {
+        html = res.data.messages.map((m, idx) => `
+        <div style="margin-bottom: 1rem;">
+          <div><strong>${idx + 1}.) From:</strong> ${m.from}, <strong>Timestamp:</strong> ${new Date(m.date).toLocaleString()}</div>
+          <div style="font-size: 0.9rem; color: #ccc;">
+            <strong>Subject:</strong> ${m.subject}
+          </div>
+        </div>
+      `).join('');
+      }
+      console.log(res.data.messages);
+      setMessages(prev => [...prev, { type: 'bot-html', html }]);
+    }
+  };
+
+
+  console.log(messages);
 
   return (
     <div className="chat-panel">
@@ -99,18 +164,40 @@ const ChatPanel = () => {
                 <img src={logo} alt="AI" className="logo-avatar" />
               )}
 
-              <div className={`bubble ${msg.type.startsWith('bot') ? 'bot-bubble' : ''}`}>
-                {msg.type === 'bot' && msg.text}
-                {msg.type === 'bot-suggestion' && (
-                  <>
-                    <p>{msg.description}</p>
-                    <button className="action-button">{msg.action}</button>
-                  </>
-                )}
-                {msg.type === 'user' && msg.text}
-              </div>
+              {/* Bot Text */}
+              {msg.type === 'bot' && (
+                <div className="bubble bot-bubble">
+                  {msg.text}
+                </div>
+              )}
 
-              {msg.type === 'user' && <div className="avatar user-avatar">{user?.username.charAt(0)}</div>}
+              {/* Bot HTML Message */}
+              {msg.type === 'bot-html' && (
+                <div
+                  className="bubble bot-bubble"
+                  dangerouslySetInnerHTML={{ __html: msg.html }}
+                />
+              )}
+
+              {/* Bot Suggestion */}
+              {msg.type === 'bot-suggestion' && (
+                <div className="bubble bot-bubble">
+                  <p>{msg.description}</p>
+                  <button className="action-button" onClick={() => handleAction(msg)}>
+                    {msg.action}
+                  </button>
+                </div>
+              )}
+
+              {/* User Message */}
+              {msg.type === 'user' && (
+                <>
+                  <div className="bubble">{msg.text}</div>
+                  <div className="avatar user-avatar">
+                    {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                  </div>
+                </>
+              )}
             </div>
           ))}
           <div ref={messagesEndRef} />
