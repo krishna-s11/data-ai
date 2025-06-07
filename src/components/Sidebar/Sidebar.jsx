@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import {logout} from '../../utility/logout';
 import api from '../../utility/api';
 
-const Sidebar = ({ closeSidebar }) => {
+const Sidebar = ({ closeSidebar, resetMessages }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -35,7 +35,11 @@ const Sidebar = ({ closeSidebar }) => {
 
       {!collapsed && (
         <>
-          <button className="new-chat-btn">+ New chat</button>
+          <button className="new-chat-btn" onClick={(e) => {
+            e.stopPropagation();
+            resetMessages(); 
+            closeSidebar();
+          }}>+ New chat</button>
 
           <div className="sidebar-section">
             <p className="section-label">Chats</p>

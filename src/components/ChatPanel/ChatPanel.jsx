@@ -5,13 +5,7 @@ import logo from '../../assets/logo.png';
 import api from '../../utility/api';
 import { useNavigate } from 'react-router-dom';
 
-const ChatPanel = () => {
-  const [messages, setMessages] = useState([
-    {
-      type: 'bot',
-      text: "Hi there! How's it going? What can I help you with today?",
-    },
-  ]);
+const ChatPanel = ({ messages, setMessages}) => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);

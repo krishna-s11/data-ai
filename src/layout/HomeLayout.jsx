@@ -10,12 +10,17 @@ import { logout } from '../utility/logout';
 
 const HomeLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [messages, setMessages] = useState([
+    {
+      type: 'bot',
+      text: "Hi there! How's it going? What can I help you with today?",
+    },
+  ]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const access_token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
     if (!access_token) {
-      // Token not found, log out user immediately
       logout(navigate);
       return;
     }
@@ -24,10 +29,10 @@ const HomeLayout = () => {
         Authorization: `Bearer ${access_token}`
       }
     })
-      .catch(err => {
-        console.error('Token verification failed:', err);
-        logout(navigate);
-      });
+    .catch(err => {
+      console.error('Token verification failed:', err);
+      logout(navigate);
+    });
   }, [navigate]);
 
   return (
@@ -37,13 +42,20 @@ const HomeLayout = () => {
       </button>
 
       <aside className={`sidebar-drawer ${sidebarOpen ? 'open' : ''}`}>
-        <Sidebar closeSidebar={() => setSidebarOpen(false)} />
+        <Sidebar closeSidebar={() => setSidebarOpen(false)} resetMessages={() => {
+          setMessages([
+            {
+              type: 'bot',
+              text: "Hi there! How's it going? What can I help you with today?",
+            },
+          ]);
+        }} />
       </aside>
 
       {sidebarOpen && <div className="overlay" onClick={() => setSidebarOpen(false)} />}
 
       <main className="main-window">
-        <ChatPanel />
+        <ChatPanel messages={messages} setMessages={setMessages} />
       </main>
     </div>
   );
