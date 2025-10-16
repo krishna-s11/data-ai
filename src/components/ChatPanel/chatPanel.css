@@ -7,6 +7,7 @@
   background-color: var(--bg-elevated);
   color: var(--text);
   overflow: hidden;
+  position: relative;
 }
 
 /* Action Button */
@@ -169,6 +170,11 @@
   align-items: center;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-elevated);
+  z-index: 10;
+  margin-bottom: 0.75rem;
 }
 
 .chat-title { display: flex; flex-direction: column; }
@@ -207,6 +213,7 @@
   padding: 1rem 0.25rem 1rem 0;
   margin-bottom: 0.75rem;
   scroll-behavior: smooth;
+  min-height: 0;
 }
 
 .welcome-hero {
@@ -442,11 +449,16 @@
   /* Reserve space for mobile hamburger on the left */
   .chat-header {
     padding-left: 3.25rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
   }
-
 
   .chat-panel {
     padding: 0.75rem;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   .message.bot{
@@ -469,8 +481,19 @@
   .messages-container {
     gap: 0.75rem;
   }
+  
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 0.5rem;
+  }
+  
   .chat-input {
     padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);
+    position: sticky;
+    bottom: 0;
+    background-color: var(--bg-elevated);
+    z-index: 10;
   }
   
   /* Connection Card Mobile */
