@@ -21,12 +21,14 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Soft logout on 401, but not for service-specific endpoints
+// Soft logout on 401, but try to refresh token first
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Don't auto-logout for service-specific endpoints that are expected to fail when not connected
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      // Don't auto-logout for service-specific endpoints
       const serviceEndpoints = [
         '/list_calendar_events',
         '/list_notion_pages', 
@@ -42,15 +44,53 @@ api.interceptors.response.use(
         error.config?.url?.includes(endpoint)
       );
       
-      if (!isServiceEndpoint) {
-        toast.error('Session expired. Please login again.', {
-          onClose: () => {
+      if (!isServiceEndpoint && !originalRequest.url?.includes('/auth/refresh')) {
+        // Try to refresh the token
+        const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+        
+        if (refreshToken) {
+          originalRequest._retry = true;
+          
+          try {
+            const response = await axios.post('https://dataai.pilotai.info/auth/refresh', {
+              refresh_token: refreshToken
+            });
+            
+            const { access_token, refresh_token: new_refresh_token } = response.data;
+            
+            // Update tokens in storage
+            const storage = localStorage.getItem('access_token') ? localStorage : sessionStorage;
+            storage.setItem('access_token', access_token);
+            storage.setItem('refresh_token', new_refresh_token);
+            
+            // Retry the original request with new token
+            originalRequest.headers.Authorization = `Bearer ${access_token}`;
+            return api(originalRequest);
+          } catch (refreshError) {
+            // Refresh failed, log out user
             localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
             sessionStorage.removeItem('access_token');
-            window.location.href = '/';
-          },
-          autoClose: 3000,
-        });
+            sessionStorage.removeItem('refresh_token');
+            
+            toast.error('Session expired. Please login again.', {
+              onClose: () => {
+                window.location.href = '/';
+              },
+              autoClose: 3000,
+            });
+          }
+        } else {
+          // No refresh token available
+          toast.error('Session expired. Please login again.', {
+            onClose: () => {
+              localStorage.removeItem('access_token');
+              sessionStorage.removeItem('access_token');
+              window.location.href = '/';
+            },
+            autoClose: 3000,
+          });
+        }
       }
     }
     return Promise.reject(error);

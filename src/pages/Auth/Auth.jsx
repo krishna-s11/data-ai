@@ -46,6 +46,7 @@ const AuthPage = () => {
       } else {
         const storage = remember ? localStorage : sessionStorage;
         storage.setItem("access_token", data.access_token);
+        storage.setItem("refresh_token", data.refresh_token);
         navigate("/chat");
       }
     } catch (error) {
