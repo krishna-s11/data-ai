@@ -1,7 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap');
-*{
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg: #18181B;
+  --bg-elevated: #1F1F22;
+  --panel: #1F1F22;
+  --text: #E5E7EB;
+  --muted: #9CA3AF;
+  --border: #2D2D2D;
+  --primary: #135DFC;
+  --primary-600: #0F4DE1;
+  --success: #22C55E;
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+* {
   margin: 0;
   padding: 0;
-  font-size: 'Lato', sans-serif;
   box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  overscroll-behavior: none;
+}
+
+/* Custom scrollbar for a premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--panel);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Toast notifications */
+.Toastify__toast {
+  background: var(--panel) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.Toastify__toast--success {
+  background: var(--success) !important;
+  color: white !important;
+}
+
+.Toastify__toast--error {
+  background: #ef4444 !important;
+  color: white !important;
 }

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import './connectApps.css';
-import { FaCheck } from 'react-icons/fa';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 import googleLogo from '../../assets/google.png';
 import slackLogo from '../../assets/slack.png';
 import zoomLogo from '../../assets/zoom.png';
 import notionLogo from '../../assets/notion1.png';
+import dataAiLogo from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import api from '../../utility/api';
 import { toast } from 'react-toastify';
 
 const services = {
@@ -25,6 +27,8 @@ const ConnectApps = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [showDialog, setShowDialog] = useState(false);
+  const [selectedService, setSelectedService] = useState('');
   const navigate = useNavigate();
   const access_token = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
   console.log(access_token);
@@ -36,14 +40,10 @@ const ConnectApps = () => {
     }
 
     // Step 1: Check if token is valid
-    axios.get("https://backend.data-ai.co/auth/verify-token", {
-      headers: { Authorization: `Bearer ${access_token}` }
-    })
+    api.get('/auth/verify-token')
       .then(() => {
         // Step 2: Token valid, get connected services (even if empty)
-        return axios.get("https://backend.data-ai.co/auth/tokens", {
-          headers: { Authorization: `Bearer ${access_token}` }
-        });
+        return api.get('/auth/tokens');
       })
       .then(res => {
         const tokens = res.data.tokens || {};
@@ -69,27 +69,14 @@ const ConnectApps = () => {
       .finally(() => setLoading(false));
   }, [access_token, navigate]);
 
-  const handleConnect = async (service) => {
-    try {
-      const res = await axios.get(`https://backend.data-ai.co/auth/${service}`, {
-        headers: { Authorization: `Bearer ${access_token}` }
-      });
-      if (res.data.redirect_url) {
-        console.log(res.data.redirect_url);
-        window.location.href = res.data.redirect_url;
-      } else {
-        toast.error(`No redirect URL received for ${service}`);
-      }
-    } catch (err) {
-      if (err.response?.status === 401) {
-        toast.error("Session expired. Please login again.");
-        localStorage.removeItem("access_token");
-        navigate("/");
-      } else {
-        toast.error(`Failed to connect ${service}. Please try again.`);
-        console.error(`Connect ${service} failed:`, err);
-      }
-    }
+  const handleConnect = (service) => {
+    setSelectedService(service);
+    setShowDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setShowDialog(false);
+    setSelectedService('');
   };
 
   useEffect(() => {
@@ -112,9 +99,16 @@ const ConnectApps = () => {
 
   if (loading) {
     return (
-      <div className="spinner-container">
-        <div className="spinner"></div>
-        <p>Loading connected apps...</p>
+      <div className="loading-container">
+        <div className="loading-content">
+          <div className="enhanced-spinner">
+            <div className="spinner-ring"></div>
+            <div className="spinner-ring"></div>
+            <div className="spinner-ring"></div>
+          </div>
+          <h2 className="loading-title">Loading Connected Apps</h2>
+          <p className="loading-subtitle">Please wait while we fetch your connected services...</p>
+        </div>
       </div>
     );
   }
@@ -135,6 +129,31 @@ const ConnectApps = () => {
           <button className="next-btn" disabled={!allConnected} onClick={() => navigate("/chat")}>Next</button>
         </div>
       </div>
+
+      {/* Feature Coming Soon Dialog */}
+      {showDialog && (
+        <div className="dialog-overlay" onClick={handleCloseDialog}>
+          <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
+            <button className="dialog-close" onClick={handleCloseDialog}>
+              <FaTimes />
+            </button>
+            <div className="dialog-icon">
+              <img src={dataAiLogo} alt="Data AI" className="dialog-logo" />
+              <div className="dialog-brand-text">Data AI</div>
+            </div>
+            <h2 className="dialog-title">Feature Coming Soon!</h2>
+            <p className="dialog-message">
+              We're working hard to bring you the {services[selectedService]?.name} integration. 
+              This feature will be available in an upcoming update.
+            </p>
+            <div className="dialog-actions">
+              <button className="dialog-btn primary" onClick={handleCloseDialog}>
+                Got it!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
