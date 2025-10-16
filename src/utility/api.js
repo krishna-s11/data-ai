@@ -2,7 +2,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const api = axios.create({
-  baseURL: 'https://51.20.4.158',
+  baseURL: 'https://dataai.pilotai.info',
   headers: {
     'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': 'true',
