@@ -4,9 +4,10 @@ import Sidebar from '../components/Sidebar/Sidebar';
 import ChatPanel from '../components/ChatPanel/ChatPanel';
 import OnboardingDialog from '../components/OnboardingDialog/OnboardingDialog';
 import { FaBars } from "react-icons/fa";
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { logout } from '../utility/logout';
+import api from '../utility/api';
 import {
   loadConversations,
   saveConversations,
@@ -45,11 +46,7 @@ const HomeLayout = () => {
       setShowOnboarding(true);
     }
     
-    axios.get("https://backend.data-ai.co/auth/verify-token", {
-      headers: {
-        Authorization: `Bearer ${access_token}`
-      }
-    })
+    api.get("/auth/verify-token")
     .catch(err => {
       console.error('Token verification failed:', err);
       logout(navigate);
