@@ -4,7 +4,7 @@ import { FaShareAlt, FaChevronDown, FaArrowUp, FaClock } from 'react-icons/fa';
 import logo from '../../assets/logo.png';
 import api from '../../utility/api';
 import { useNavigate } from 'react-router-dom';
-import NotePreviewModal from '../NotePreviewModal/NotePreviewModal';
+import InlineNoteEditor from '../InlineNoteEditor/InlineNoteEditor';
 
 const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
   const [input, setInput] = useState('');
@@ -13,7 +13,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
   const inputRef = useRef(null);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const [noteModal, setNoteModal] = useState({ isOpen: false, data: null });
+  const [noteEditor, setNoteEditor] = useState({ isVisible: false, data: null });
   
   // Simple incremental typer for text and HTML bubbles
   const typeIncrementally = async ({
@@ -202,9 +202,9 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         console.log('Handling Notion page action:', msg.action);
         console.log('Message data:', msg);
         
-        // Open the note preview modal
-        setNoteModal({
-          isOpen: true,
+        // Show the inline note editor
+        setNoteEditor({
+          isVisible: true,
           data: {
             title: msg.note_title || '',
             content: msg.note_content || ''
@@ -323,14 +323,17 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         </div>
       `;
       setMessages(prev => [...prev, { type: 'bot-html', html }]);
+      
+      // Hide the note editor after successful save
+      setNoteEditor({ isVisible: false, data: null });
     } catch (error) {
       console.error('Error saving note:', error);
-      throw error; // Re-throw to let the modal handle the error
+      throw error; // Re-throw to let the editor handle the error
     }
   };
 
-  const handleNoteModalClose = () => {
-    setNoteModal({ isOpen: false, data: null });
+  const handleNoteCancel = () => {
+    setNoteEditor({ isVisible: false, data: null });
   };
 
   const handleShare = async () => {
@@ -393,59 +396,6 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
               {msg.type === 'bot' && (
                 <div className="bubble bot-bubble">
                   {msg.text}
-                  
-                  {/* Inline Note Preview */}
-                  {msg.note_preview && msg.note_preview.editable && (
-                    <div className="note-preview-inline">
-                      <div className="note-preview-header">
-                        <h4>📝 Note Preview</h4>
-                      </div>
-                      <div className="note-preview-content">
-                        <div className="note-field">
-                          <label>Title:</label>
-                          <input
-                            type="text"
-                            value={msg.note_preview.title}
-                            onChange={(e) => {
-                              const newTitle = e.target.value;
-                              setMessages(prev => prev.map(m => 
-                                m.id === msg.id ? { ...m, note_preview: { ...m.note_preview, title: newTitle } } : m
-                              ));
-                            }}
-                            className="note-title-input"
-                            maxLength={100}
-                          />
-                        </div>
-                        <div className="note-field">
-                          <label>Content:</label>
-                          <textarea
-                            value={msg.note_preview.content}
-                            onChange={(e) => {
-                              const newContent = e.target.value;
-                              setMessages(prev => prev.map(m => 
-                                m.id === msg.id ? { ...m, note_preview: { ...m.note_preview, content: newContent } } : m
-                              ));
-                            }}
-                            className="note-content-textarea"
-                            rows={4}
-                            maxLength={2000}
-                          />
-                        </div>
-                        <div className="note-preview-actions">
-                          <button 
-                            className="save-note-btn"
-                            onClick={() => handleNoteSave({
-                              title: msg.note_preview.title,
-                              content: msg.note_preview.content
-                            })}
-                          >
-                            💾 Save to Notion
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
                   {msg.timestamp && (
                     <div className="meta"><FaClock /> {new Date(msg.timestamp).toLocaleTimeString()}</div>
                   )}
@@ -556,13 +506,13 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         </button>
       </div>
 
-      {/* Note Preview Modal */}
-      <NotePreviewModal
-        isOpen={noteModal.isOpen}
-        onClose={handleNoteModalClose}
+      {/* Inline Note Editor */}
+      <InlineNoteEditor
+        isVisible={noteEditor.isVisible}
         onSave={handleNoteSave}
-        initialTitle={noteModal.data?.title}
-        initialContent={noteModal.data?.content}
+        onCancel={handleNoteCancel}
+        initialTitle={noteEditor.data?.title}
+        initialContent={noteEditor.data?.content}
       />
     </div>
   );
