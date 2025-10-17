@@ -310,14 +310,25 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         }
       }
     } else if (msg.action && msg.action.includes('Create Notion page')) {
-      // Handle Notion page creation
+      // Handle Notion page creation with smart note detection
       try {
-        const pageTitle = prompt('Enter a title for your Notion page:');
-        if (!pageTitle) return;
+        // Use smart detection data if available, otherwise prompt for title
+        let pageTitle, pageContent;
+        
+        if (msg.note_title && msg.note_content) {
+          // Use smart detection data
+          pageTitle = msg.note_title;
+          pageContent = msg.note_content;
+        } else {
+          // Fallback to manual input
+          pageTitle = prompt('Enter a title for your Notion page:');
+          if (!pageTitle) return;
+          pageContent = 'This page was created by Data AI. You can add your notes here.';
+        }
         
         const res = await api.post('/create_notion_page_direct', {
           title: pageTitle,
-          content: 'This page was created by Data AI. You can add your notes here.',
+          content: pageContent,
         });
         
         const html = `
@@ -326,6 +337,11 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
             <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
               <strong>Title:</strong> ${pageTitle}
             </div>
+            ${pageContent && pageContent !== 'This page was created by Data AI. You can add your notes here.' ? `
+              <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
+                <strong>Content:</strong> ${pageContent.length > 100 ? pageContent.substring(0, 100) + '...' : pageContent}
+              </div>
+            ` : ''}
             <div style="margin-top: 0.5rem;">
               <a href="${res.data.details.url}" target="_blank" style="color: #60a5fa; text-decoration: underline;">
                 Open in Notion →
