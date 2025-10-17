@@ -191,131 +191,15 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
 
   const handleAction = async (msg) => {
     console.log(msg);
-    if (msg.action.includes('Connect')) {
-      navigate("/connect");
-    } else if (msg.service === 'google_calendar') {
-      try {
-        const res = await api.get('/list_calendar_events');
-        console.log(res.data.events);
-        let html;
-        if (res.data.events.length === 0) {
-          html = `<div>There are no upcoming events in your calendar</div>`;
-        } else {
-          html = res.data.events
-            .map((e, idx) => `
-              <div style="margin-bottom: 1rem;">
-                <div><strong>${idx + 1}. ${e.summary}</strong></div>
-                <div style="font-size: 0.9rem; color: #ccc;">
-                  ${new Date(e.start).toLocaleString()} —
-                  <a href="${e.link}" target="_blank" style="color: #60a5fa; text-decoration: underline;">Open event</a>
-                </div>
-              </div>
-            `)
-            .join('');
-        }
-
-        console.log(html);
-        setMessages(prev => [...prev, { type: 'bot-html', html }]);
-      } catch (error) {
-        console.error('Error fetching calendar events:', error);
-        if (error.response?.status === 401) {
-          const html = `
-            <div style="margin-bottom: 1rem;">
-              <div><strong>📅 Google Calendar not connected</strong></div>
-              <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-                To check your calendar, please connect your Google account first.
-              </div>
-              <button onclick="window.location.href='/connect'" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #4681c3; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Connect Google Calendar
-              </button>
-            </div>
-          `;
-          setMessages(prev => [...prev, { type: 'bot-html', html }]);
-        } else {
-          const html = `<div>Sorry, there was an error fetching your calendar events. Please try again later.</div>`;
-          setMessages(prev => [...prev, { type: 'bot-html', html }]);
-        }
-      }
-    } else if (msg.service === 'notion') {
-      try {
-        const res = await api.get('/list_notion_pages');
-        let html;
-        if (res.data.pages.length === 0) {
-          html = `<div>There are no pages found in your notion</div>`;
-        } else {
-          html = res.data.pages
-            .map((e, idx) => `
-              <div style="margin-bottom: 1rem;">
-                <div><strong>${idx + 1}. ${e.title} - </strong><a href="${e.link}" target="_blank" style="color: #60a5fa; text-decoration: underline;">Open Notion</a></div>
-              </div>
-            `)
-            .join('');
-        }
-        console.log(res.data.pages);
-        setMessages(prev => [...prev, { type: 'bot-html', html }]);
-      } catch (error) {
-        console.error('Error fetching Notion pages:', error);
-        if (error.response?.status === 401) {
-          const html = `
-            <div style="margin-bottom: 1rem;">
-              <div><strong>📝 Notion not connected</strong></div>
-              <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-                To browse your Notion pages, please connect your Notion account first.
-              </div>
-              <button onclick="window.location.href='/connect'" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #4681c3; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Connect Notion
-              </button>
-            </div>
-          `;
-          setMessages(prev => [...prev, { type: 'bot-html', html }]);
-        } else {
-          const html = `<div>Sorry, there was an error fetching your Notion pages. Please try again later.</div>`;
-          setMessages(prev => [...prev, { type: 'bot-html', html }]);
-        }
-      }
-    } else if (msg.service === 'gmail') {
-      try {
-        const res = await api.get('/list_gmail_messages');
-        let html;
-        if (res.data.messages.length === 0) {
-          html = `<div>There are no mails found in your mailbox</div>`;
-        } else {
-          html = res.data.messages.map((m, idx) => `
-          <div style="margin-bottom: 1rem;">
-            <div><strong>${idx + 1}.) From:</strong> ${m.from}, <strong>Timestamp:</strong> ${new Date(m.date).toLocaleString()}</div>
-            <div style="font-size: 0.9rem; color: #ccc;">
-              <strong>Subject:</strong> ${m.subject}
-            </div>
-          </div>
-        `).join('');
-        }
-        console.log(res.data.messages);
-        setMessages(prev => [...prev, { type: 'bot-html', html }]);
-      } catch (error) {
-        console.error('Error fetching Gmail messages:', error);
-        if (error.response?.status === 401) {
-          const html = `
-            <div style="margin-bottom: 1rem;">
-              <div><strong>📧 Gmail not connected</strong></div>
-              <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-                To review your emails, please connect your Gmail account first.
-              </div>
-              <button onclick="window.location.href='/connect'" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #4681c3; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Connect Gmail
-              </button>
-            </div>
-          `;
-          setMessages(prev => [...prev, { type: 'bot-html', html }]);
-        } else {
-          const html = `<div>Sorry, there was an error fetching your emails. Please try again later.</div>`;
-          setMessages(prev => [...prev, { type: 'bot-html', html }]);
-        }
-      }
-    } else if (msg.action && (msg.action.includes('Add to Notion page') || msg.action.includes('Create Notion page'))) {
-      // Handle Notion page content addition with smart note detection
-      console.log('Handling Notion page action:', msg.action);
-      console.log('Message data:', msg);
-      try {
+    try {
+      if (msg.action.includes('Connect')) {
+        navigate("/connect");
+        return;
+      } else if (msg.action && (msg.action.includes('Add to Notion page') || msg.action.includes('Create Notion page'))) {
+        // Handle Notion page content addition with smart note detection
+        console.log('Handling Notion page action:', msg.action);
+        console.log('Message data:', msg);
+        
         // Use smart detection data if available, otherwise prompt for title
         let pageTitle, pageContent;
         
@@ -357,27 +241,86 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
           </div>
         `;
         setMessages(prev => [...prev, { type: 'bot-html', html }]);
-      } catch (error) {
-        console.error('Error adding to Notion page:', error);
-        console.error('Error details:', error.response?.data);
-        console.error('Error status:', error.response?.status);
-        if (error.response?.status === 401) {
-          const html = `
-            <div style="margin-bottom: 1rem;">
-              <div><strong>📝 Notion not connected</strong></div>
-              <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-                To add notes to Notion, please connect your Notion account first.
-              </div>
-              <button onclick="window.location.href='/connect'" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #4681c3; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Connect Notion
-              </button>
-            </div>
-          `;
-          setMessages(prev => [...prev, { type: 'bot-html', html }]);
+      } else if (msg.service === 'google_calendar') {
+        const res = await api.get('/list_calendar_events');
+        console.log(res.data.events);
+        let html;
+        if (res.data.events.length === 0) {
+          html = `<div>There are no upcoming events in your calendar</div>`;
         } else {
-          const html = `<div>Sorry, there was an error adding to your Notion page. Please try again later.</div>`;
-          setMessages(prev => [...prev, { type: 'bot-html', html }]);
+          html = res.data.events
+            .map((e, idx) => `
+              <div style="margin-bottom: 1rem;">
+                <div><strong>${idx + 1}. ${e.summary}</strong></div>
+                <div style="font-size: 0.9rem; color: #ccc;">
+                  ${new Date(e.start).toLocaleString()} —
+                  <a href="${e.link}" target="_blank" style="color: #60a5fa; text-decoration: underline;">Open event</a>
+                </div>
+              </div>
+            `)
+            .join('');
         }
+
+        console.log(html);
+        setMessages(prev => [...prev, { type: 'bot-html', html }]);
+      } else if (msg.service === 'notion') {
+        const res = await api.get('/list_notion_pages');
+        let html;
+        if (res.data.pages.length === 0) {
+          html = `<div>There are no pages found in your notion</div>`;
+        } else {
+          html = res.data.pages
+            .map((e, idx) => `
+              <div style="margin-bottom: 1rem;">
+                <div><strong>${idx + 1}. ${e.title} - </strong><a href="${e.link}" target="_blank" style="color: #60a5fa; text-decoration: underline;">Open Notion</a></div>
+              </div>
+            `)
+            .join('');
+        }
+        console.log(res.data.pages);
+        setMessages(prev => [...prev, { type: 'bot-html', html }]);
+      } else if (msg.service === 'gmail') {
+        const res = await api.get('/list_gmail_messages');
+        let html;
+        if (res.data.messages.length === 0) {
+          html = `<div>There are no mails found in your mailbox</div>`;
+        } else {
+          html = res.data.messages.map((m, idx) => `
+          <div style="margin-bottom: 1rem;">
+            <div><strong>${idx + 1}.) From:</strong> ${m.from}, <strong>Timestamp:</strong> ${new Date(m.date).toLocaleString()}</div>
+            <div style="font-size: 0.9rem; color: #ccc;">
+              <strong>Subject:</strong> ${m.subject}
+            </div>
+          </div>
+        `).join('');
+        }
+        console.log(res.data.messages);
+        setMessages(prev => [...prev, { type: 'bot-html', html }]);
+      }
+    } catch (error) {
+      console.error('Error in handleAction:', error);
+      
+      // Handle different types of errors
+      if (error.response?.status === 401) {
+        const serviceName = msg.service === 'google_calendar' ? 'Google Calendar' : 
+                           msg.service === 'notion' ? 'Notion' : 
+                           msg.service === 'gmail' ? 'Gmail' : 'service';
+        
+        const html = `
+          <div style="margin-bottom: 1rem;">
+            <div><strong>🔌 ${serviceName} not connected</strong></div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
+              To use this feature, please connect your ${serviceName} account first.
+            </div>
+            <button onclick="window.location.href='/connect'" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #4681c3; color: white; border: none; border-radius: 4px; cursor: pointer;">
+              Connect ${serviceName}
+            </button>
+          </div>
+        `;
+        setMessages(prev => [...prev, { type: 'bot-html', html }]);
+      } else {
+        const html = `<div>Sorry, there was an error processing your request. Please try again later.</div>`;
+        setMessages(prev => [...prev, { type: 'bot-html', html }]);
       }
     }
   };
