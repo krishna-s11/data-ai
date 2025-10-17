@@ -132,6 +132,7 @@ const ConnectApps = () => {
     const params = new URLSearchParams(window.location.search);
     let serviceConnected = '';
     
+    // Check for success parameters
     if (params.get("google") === "success") {
       serviceConnected = 'Google';
     }
@@ -145,6 +146,13 @@ const ConnectApps = () => {
       serviceConnected = 'Notion';
     }
     
+    // Handle raw OAuth callback parameters (workaround for misconfigured redirect URI)
+    if (params.get("code") && params.get("state")) {
+      console.log('[DEBUG] Raw OAuth callback detected, processing...');
+      handleOAuthCallback(params.get("code"), params.get("state"));
+      return;
+    }
+    
     if (serviceConnected) {
       setConnectedService(serviceConnected);
       setShowSuccessDialog(true);
@@ -154,6 +162,51 @@ const ConnectApps = () => {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
+
+  // Handle raw OAuth callback parameters
+  const handleOAuthCallback = async (code, state) => {
+    try {
+      console.log('[DEBUG] Processing OAuth callback with code:', code.substring(0, 10) + '...');
+      
+      // Determine the backend URL based on environment
+      const backendUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:8000' 
+        : 'https://api.data-ai.co';
+      
+      // Call the backend callback endpoint directly
+      const response = await fetch(`${backendUrl}/auth/notion/callback?code=${code}&state=${state}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // If successful, redirect to success page
+        window.location.href = 'https://chat.data-ai.co/connect?notion=success';
+      } else {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+    } catch (error) {
+      console.error('[ERROR] OAuth callback processing failed:', error);
+      
+      if (error.message.includes('400')) {
+        toast.error("Invalid OAuth parameters. Please try connecting again.");
+      } else if (error.message.includes('401')) {
+        toast.error("OAuth state token is invalid. Please try connecting again.");
+      } else if (error.message.includes('500')) {
+        toast.error("Failed to exchange OAuth code for tokens. Please try again.");
+      } else {
+        toast.error("Connection failed. Please try again.");
+      }
+      
+      // Clear URL parameters and stay on page
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  };
 
   const allConnected = Object.values(connections).every(Boolean);
 
