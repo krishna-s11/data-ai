@@ -28,6 +28,8 @@ const ConnectApps = () => {
 
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [connectedService, setConnectedService] = useState('');
   const [selectedService, setSelectedService] = useState('');
   const navigate = useNavigate();
   const access_token = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
@@ -105,19 +107,51 @@ const ConnectApps = () => {
     setSelectedService('');
   };
 
+  const handleCloseSuccessDialog = () => {
+    setShowSuccessDialog(false);
+    setConnectedService('');
+  };
+
+  // Function to refresh connection status
+  const refreshConnections = async () => {
+    try {
+      const res = await api.get('/auth/tokens');
+      const tokens = res.data.tokens || {};
+      setConnections({
+        google: !!tokens.google,
+        slack: !!tokens.slack,
+        zoom: !!tokens.zoom,
+        notion: !!tokens.notion
+      });
+    } catch (err) {
+      console.error("Error refreshing connections:", err);
+    }
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    let serviceConnected = '';
+    
     if (params.get("google") === "success") {
-      toast.success("Google account connected!");
+      serviceConnected = 'Google';
     }
     if (params.get("slack") === "success") {
-      toast.success("Slack account connected!");
+      serviceConnected = 'Slack';
     }
     if (params.get("zoom") === "success") {
-      toast.success("Zoom account connected!");
+      serviceConnected = 'Zoom';
     }
     if (params.get("notion") === "success") {
-      toast.success("Notion account connected!");
+      serviceConnected = 'Notion';
+    }
+    
+    if (serviceConnected) {
+      setConnectedService(serviceConnected);
+      setShowSuccessDialog(true);
+      // Refresh connections to show updated status
+      refreshConnections();
+      // Clear URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 
@@ -144,9 +178,9 @@ const ConnectApps = () => {
       <h1 className="connect-heading">Connect your apps</h1>
       <div className="connect-box">
         {Object.entries(services).map(([key, service]) => (
-          <div key={key} className="app-tile" onClick={() => handleConnect(key)}>
+          <div key={key} className={`app-tile ${connections[key] ? 'connected' : ''}`} onClick={() => handleConnect(key)}>
             <img src={service.image} alt={service.name} />
-            <span>Connect your {service.name}</span>
+            <span>{connections[key] ? `${service.name} Connected` : `Connect your ${service.name}`}</span>
             {connections[key] && <FaCheck className="status-check" />}
           </div>
         ))}
@@ -155,6 +189,33 @@ const ConnectApps = () => {
           <button className="next-btn" disabled={!allConnected} onClick={() => navigate("/chat")}>Next</button>
         </div>
       </div>
+
+      {/* Success Dialog - Shows when a service is connected */}
+      {showSuccessDialog && (
+        <div className="dialog-overlay" onClick={handleCloseSuccessDialog}>
+          <div className="dialog-content success-dialog" onClick={(e) => e.stopPropagation()}>
+            <button className="dialog-close" onClick={handleCloseSuccessDialog}>
+              <FaTimes />
+            </button>
+            <div className="dialog-icon">
+              <div className="success-icon">
+                <FaCheck />
+              </div>
+              <div className="dialog-brand-text">Data AI</div>
+            </div>
+            <h2 className="dialog-title">Successfully Connected!</h2>
+            <p className="dialog-message">
+              Your {connectedService} account has been successfully connected to Data AI. 
+              You can now use {connectedService} features in your conversations.
+            </p>
+            <div className="dialog-actions">
+              <button className="dialog-btn primary" onClick={handleCloseSuccessDialog}>
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Feature Coming Soon Dialog - Only for non-Notion services */}
       {showDialog && selectedService !== 'notion' && (
