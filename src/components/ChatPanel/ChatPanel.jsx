@@ -393,6 +393,59 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
               {msg.type === 'bot' && (
                 <div className="bubble bot-bubble">
                   {msg.text}
+                  
+                  {/* Inline Note Preview */}
+                  {msg.note_preview && msg.note_preview.editable && (
+                    <div className="note-preview-inline">
+                      <div className="note-preview-header">
+                        <h4>📝 Note Preview</h4>
+                      </div>
+                      <div className="note-preview-content">
+                        <div className="note-field">
+                          <label>Title:</label>
+                          <input
+                            type="text"
+                            value={msg.note_preview.title}
+                            onChange={(e) => {
+                              const newTitle = e.target.value;
+                              setMessages(prev => prev.map(m => 
+                                m.id === msg.id ? { ...m, note_preview: { ...m.note_preview, title: newTitle } } : m
+                              ));
+                            }}
+                            className="note-title-input"
+                            maxLength={100}
+                          />
+                        </div>
+                        <div className="note-field">
+                          <label>Content:</label>
+                          <textarea
+                            value={msg.note_preview.content}
+                            onChange={(e) => {
+                              const newContent = e.target.value;
+                              setMessages(prev => prev.map(m => 
+                                m.id === msg.id ? { ...m, note_preview: { ...m.note_preview, content: newContent } } : m
+                              ));
+                            }}
+                            className="note-content-textarea"
+                            rows={4}
+                            maxLength={2000}
+                          />
+                        </div>
+                        <div className="note-preview-actions">
+                          <button 
+                            className="save-note-btn"
+                            onClick={() => handleNoteSave({
+                              title: msg.note_preview.title,
+                              content: msg.note_preview.content
+                            })}
+                          >
+                            💾 Save to Notion
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   {msg.timestamp && (
                     <div className="meta"><FaClock /> {new Date(msg.timestamp).toLocaleTimeString()}</div>
                   )}
