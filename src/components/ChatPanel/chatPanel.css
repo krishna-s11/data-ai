@@ -576,3 +576,106 @@
 .bot-bubble div {
   margin-bottom: 0.25rem;
 }
+
+/* Inline Note Preview Styles */
+.note-preview-inline {
+  margin-top: 1rem;
+  background: linear-gradient(135deg, #1f1f22 0%, #2a2a2e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.note-preview-header {
+  margin-bottom: 1rem;
+}
+
+.note-preview-header h4 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.note-preview-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.note-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.note-field label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.note-title-input {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.5rem;
+  color: var(--text);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.note-title-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.note-content-textarea {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.5rem;
+  color: var(--text);
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 80px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.note-content-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.note-preview-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-note-btn {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.save-note-btn:hover {
+  background-color: #0f4de1;
+  transform: translateY(-1px);
+}
+
+.save-note-btn:active {
+  transform: translateY(0);
+}
