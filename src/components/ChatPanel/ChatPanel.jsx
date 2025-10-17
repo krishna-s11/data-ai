@@ -4,6 +4,7 @@ import { FaShareAlt, FaChevronDown, FaArrowUp, FaClock } from 'react-icons/fa';
 import logo from '../../assets/logo.png';
 import api from '../../utility/api';
 import { useNavigate } from 'react-router-dom';
+import NotePreviewModal from '../NotePreviewModal/NotePreviewModal';
 
 const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
   const [input, setInput] = useState('');
@@ -12,6 +13,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
   const inputRef = useRef(null);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const [noteModal, setNoteModal] = useState({ isOpen: false, data: null });
   
   // Simple incremental typer for text and HTML bubbles
   const typeIncrementally = async ({
@@ -200,47 +202,14 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         console.log('Handling Notion page action:', msg.action);
         console.log('Message data:', msg);
         
-        // Use smart detection data if available, otherwise prompt for title
-        let pageTitle, pageContent;
-        
-        if (msg.note_title && msg.note_content) {
-          // Use smart detection data
-          pageTitle = msg.note_title;
-          pageContent = msg.note_content;
-          console.log('Using smart detection data:', { pageTitle, pageContent });
-        } else {
-          // Fallback to manual input
-          pageTitle = prompt('Enter a title for your note:');
-          if (!pageTitle) return;
-          pageContent = 'This note was added by Data AI.';
-          console.log('Using manual input:', { pageTitle, pageContent });
-        }
-        
-        console.log('Making API call to /append_to_notion_page with:', { title: pageTitle, content: pageContent });
-        const res = await api.post('/append_to_notion_page', {
-          title: pageTitle,
-          content: pageContent,
+        // Open the note preview modal
+        setNoteModal({
+          isOpen: true,
+          data: {
+            title: msg.note_title || '',
+            content: msg.note_content || ''
+          }
         });
-        
-        console.log('API response:', res.data);
-        
-        const html = `
-          <div style="margin-bottom: 1rem;">
-            <div><strong>📝 Note added to Notion successfully!</strong></div>
-            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-              <strong>Title:</strong> ${pageTitle}
-            </div>
-            ${pageContent && pageContent !== 'This note was added by Data AI.' ? `
-              <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-                <strong>Content:</strong> ${pageContent.length > 100 ? pageContent.substring(0, 100) + '...' : pageContent}
-              </div>
-            ` : ''}
-            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-              <strong>Added to:</strong> Your Notion page
-            </div>
-          </div>
-        `;
-        setMessages(prev => [...prev, { type: 'bot-html', html }]);
       } else if (msg.service === 'google_calendar') {
         const res = await api.get('/list_calendar_events');
         console.log(res.data.events);
@@ -327,6 +296,42 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
 
 
   console.log(messages);
+
+  const handleNoteSave = async (noteData) => {
+    console.log('Saving note:', noteData);
+    
+    try {
+      const res = await api.post('/append_to_notion_page', {
+        title: noteData.title,
+        content: noteData.content,
+      });
+      
+      console.log('API response:', res.data);
+      
+      const html = `
+        <div style="margin-bottom: 1rem;">
+          <div><strong>📝 Note added to Notion successfully!</strong></div>
+          <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
+            <strong>Title:</strong> ${noteData.title}
+          </div>
+          <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
+            <strong>Content:</strong> ${noteData.content.length > 100 ? noteData.content.substring(0, 100) + '...' : noteData.content}
+          </div>
+          <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
+            <strong>Added to:</strong> Your Notion page
+          </div>
+        </div>
+      `;
+      setMessages(prev => [...prev, { type: 'bot-html', html }]);
+    } catch (error) {
+      console.error('Error saving note:', error);
+      throw error; // Re-throw to let the modal handle the error
+    }
+  };
+
+  const handleNoteModalClose = () => {
+    setNoteModal({ isOpen: false, data: null });
+  };
 
   const handleShare = async () => {
     try {
@@ -497,6 +502,15 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
           <FaArrowUp />
         </button>
       </div>
+
+      {/* Note Preview Modal */}
+      <NotePreviewModal
+        isOpen={noteModal.isOpen}
+        onClose={handleNoteModalClose}
+        onSave={handleNoteSave}
+        initialTitle={noteModal.data?.title}
+        initialContent={noteModal.data?.content}
+      />
     </div>
   );
 };
