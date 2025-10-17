@@ -145,6 +145,8 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
             description: sug.description,
             action: sug.action,
             service: sug.service,
+            note_content: sug.note_content,  // Pass through note content
+            note_title: sug.note_title,      // Pass through note title
             timestamp: new Date().toISOString(),
           });
         });
