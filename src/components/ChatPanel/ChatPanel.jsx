@@ -4,7 +4,7 @@ import { FaShareAlt, FaChevronDown, FaArrowUp, FaClock } from 'react-icons/fa';
 import logo from '../../assets/logo.png';
 import api from '../../utility/api';
 import { useNavigate } from 'react-router-dom';
-import InlineNoteEditor from '../InlineNoteEditor/InlineNoteEditor';
+// Remove InlineNoteEditor import - notes are now shown directly in chat
 
 const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
   const [input, setInput] = useState('');
@@ -13,7 +13,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
   const inputRef = useRef(null);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const [noteEditor, setNoteEditor] = useState({ isVisible: false, data: null });
+  // Remove note editor state - we'll show notes directly in chat
   
   // Simple incremental typer for text and HTML bubbles
   const typeIncrementally = async ({
@@ -202,14 +202,32 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         console.log('Handling Notion page action:', msg.action);
         console.log('Message data:', msg);
         
-        // Show the inline note editor
-        setNoteEditor({
-          isVisible: true,
-          data: {
+        // Show note preview directly in chat instead of editor
+        const notePreviewHtml = `
+          <div class="note-preview-card">
+            <div class="note-preview-header">
+              <div class="note-preview-icon">📝</div>
+              <div class="note-preview-title">${msg.note_title || 'Quick Note'}</div>
+            </div>
+            <div class="note-preview-content">
+              ${msg.note_content || 'No content available'}
+            </div>
+            <div class="note-preview-actions">
+              <button class="note-save-btn" onclick="window.saveNoteToNotion('${msg.note_title || ''}', '${(msg.note_content || '').replace(/'/g, "\\'")}')">
+                💾 Save to Notion
+              </button>
+            </div>
+          </div>
+        `;
+        
+        setMessages(prev => [...prev, { 
+          type: 'bot-html', 
+          html: notePreviewHtml,
+          noteData: {
             title: msg.note_title || '',
             content: msg.note_content || ''
           }
-        });
+        }]);
       } else if (msg.service === 'google_calendar') {
         const res = await api.get('/list_calendar_events');
         console.log(res.data.events);
@@ -295,46 +313,49 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
   };
 
 
-  console.log(messages);
-
-  const handleNoteSave = async (noteData) => {
-    console.log('Saving note:', noteData);
+  // Global function for saving notes from HTML buttons
+  window.saveNoteToNotion = async (title, content) => {
+    console.log('Saving note:', { title, content });
     
     try {
       const res = await api.post('/append_to_notion_page', {
-        title: noteData.title,
-        content: noteData.content,
+        title: title,
+        content: content,
       });
       
       console.log('API response:', res.data);
       
       const html = `
-        <div style="margin-bottom: 1rem;">
-          <div><strong>📝 Note added to Notion successfully!</strong></div>
-          <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-            <strong>Title:</strong> ${noteData.title}
+        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border-left: 4px solid #22c55e;">
+          <div style="color: #22c55e; font-weight: 600; margin-bottom: 0.5rem;">✅ Note saved successfully!</div>
+          <div style="font-size: 0.9rem; color: #ccc;">
+            <strong>Title:</strong> ${title}
           </div>
-          <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-            <strong>Content:</strong> ${noteData.content.length > 100 ? noteData.content.substring(0, 100) + '...' : noteData.content}
-          </div>
-          <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-            <strong>Added to:</strong> Your Notion page
+          <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.25rem;">
+            <strong>Content:</strong> ${content.length > 100 ? content.substring(0, 100) + '...' : content}
           </div>
         </div>
       `;
       setMessages(prev => [...prev, { type: 'bot-html', html }]);
       
-      // Hide the note editor after successful save
-      setNoteEditor({ isVisible: false, data: null });
     } catch (error) {
       console.error('Error saving note:', error);
-      throw error; // Re-throw to let the editor handle the error
+      
+      const errorHtml = `
+        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 4px solid #ef4444;">
+          <div style="color: #ef4444; font-weight: 600; margin-bottom: 0.5rem;">❌ Failed to save note</div>
+          <div style="font-size: 0.9rem; color: #ccc;">
+            Please try again or check your Notion connection.
+          </div>
+        </div>
+      `;
+      setMessages(prev => [...prev, { type: 'bot-html', html: errorHtml }]);
     }
   };
 
-  const handleNoteCancel = () => {
-    setNoteEditor({ isVisible: false, data: null });
-  };
+  console.log(messages);
+
+  // Note editor functions removed - notes are now shown directly in chat
 
   const handleShare = async () => {
     try {
@@ -506,14 +527,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         </button>
       </div>
 
-      {/* Inline Note Editor */}
-      <InlineNoteEditor
-        isVisible={noteEditor.isVisible}
-        onSave={handleNoteSave}
-        onCancel={handleNoteCancel}
-        initialTitle={noteEditor.data?.title}
-        initialContent={noteEditor.data?.content}
-      />
+      {/* InlineNoteEditor removed - notes are now shown directly in chat */}
     </div>
   );
 };
