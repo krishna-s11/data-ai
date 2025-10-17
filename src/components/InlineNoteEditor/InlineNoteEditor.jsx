@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaSave, FaTimes, FaEdit } from 'react-icons/fa';
+import { FaSave, FaTimes, FaEdit, FaMagic } from 'react-icons/fa';
 import './InlineNoteEditor.css';
+import api from '../../utility/api';
 
 const InlineNoteEditor = ({ 
   initialTitle, 
@@ -12,6 +13,7 @@ const InlineNoteEditor = ({
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
 
   useEffect(() => {
     if (isVisible) {
@@ -25,10 +27,36 @@ const InlineNoteEditor = ({
   const generateBetterTitle = (content) => {
     if (!content) return 'Quick Note';
     
-    // Extract meaningful words for title
+    // Look for specific patterns that indicate important entities
+    const titlePatterns = [
+      // Person/entity patterns
+      /(?:King|Queen|President|Prime Minister|Emperor)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i,
+      /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:is|was|are|were)\s+(?:the\s+)?(?:current\s+)?(?:King|Queen|President|Prime Minister|Emperor)/i,
+      /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:also\s+known\s+as|aka)\s+/i,
+      
+      // Location patterns
+      /(?:in|of)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i,
+      /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:is|was)\s+(?:located\s+)?(?:in|at)/i,
+      
+      // General factual patterns
+      /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:is|was|are|were)\s+(?:a|an|the)\s+/i,
+      /(?:The\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:refers\s+to|means|represents)/i,
+    ];
+    
+    for (const pattern of titlePatterns) {
+      const match = content.match(pattern);
+      if (match) {
+        const titleText = match[1].trim();
+        if (titleText.length > 3 && titleText.length < 50) {
+          return titleText;
+        }
+      }
+    }
+    
+    // Fallback: extract meaningful words for title
     const words = content.split(' ').filter(word => 
       word.length > 3 && 
-      !['this', 'that', 'with', 'from', 'they', 'them', 'have', 'been', 'were', 'said'].includes(word.toLowerCase())
+      !['this', 'that', 'with', 'from', 'they', 'them', 'have', 'been', 'were', 'said', 'want', 'me', 'add', 'notes', 'note', 'save'].includes(word.toLowerCase())
     );
     
     if (words.length > 0) {
@@ -36,6 +64,25 @@ const InlineNoteEditor = ({
     }
     
     return 'Quick Note';
+  };
+
+  const generateAITitle = async () => {
+    if (!content.trim()) return;
+    
+    setIsGeneratingTitle(true);
+    try {
+      const response = await api.post('/note_title', {
+        content: content.trim()
+      });
+      
+      if (response.data?.title) {
+        setTitle(response.data.title);
+      }
+    } catch (error) {
+      console.error('Error generating AI title:', error);
+    } finally {
+      setIsGeneratingTitle(false);
+    }
   };
 
   const handleSave = async () => {
@@ -83,14 +130,25 @@ const InlineNoteEditor = ({
         {/* Title Input */}
         <div className="note-field">
           <label className="note-label">Title</label>
-          <input
-            type="text"
-            className="note-title-input"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter a descriptive title..."
-            maxLength={100}
-          />
+          <div className="title-input-container">
+            <input
+              type="text"
+              className="note-title-input"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter a descriptive title..."
+              maxLength={100}
+            />
+            <button 
+              className="ai-title-btn"
+              onClick={generateAITitle}
+              disabled={isGeneratingTitle || !content.trim()}
+              title="Generate AI title"
+            >
+              <FaMagic />
+              {isGeneratingTitle ? '...' : ''}
+            </button>
+          </div>
           <div className="char-count">{title.length}/100</div>
         </div>
 

@@ -103,20 +103,14 @@
   margin-bottom: 1.5rem;
 }
 
-.note-field:last-child {
-  margin-bottom: 0;
-}
-
-.note-label {
-  display: block;
-  font-weight: 500;
-  color: #e2e8f0;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+.title-input-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .note-title-input {
-  width: 100%;
+  flex: 1;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid #4a5568;
   border-radius: 8px;
@@ -127,15 +121,42 @@
   box-sizing: border-box;
 }
 
-.note-title-input:focus {
-  outline: none;
-  border-color: #60a5fa;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+.ai-title-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 2.5rem;
+  height: 2.5rem;
 }
 
-.note-title-input::placeholder {
-  color: #718096;
+.ai-title-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  transform: translateY(-1px);
+}
+
+.ai-title-btn:disabled {
+  background: #4a5568;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.ai-title-btn svg {
+  font-size: 0.9rem;
+}
+
+.note-label {
+  display: block;
+  font-weight: 500;
+  color: #e2e8f0;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .note-content-textarea {
