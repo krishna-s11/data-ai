@@ -69,9 +69,35 @@ const ConnectApps = () => {
       .finally(() => setLoading(false));
   }, [access_token, navigate]);
 
-  const handleConnect = (service) => {
-    setSelectedService(service);
-    setShowDialog(true);
+  const handleConnect = async (service) => {
+    console.log(`[DEBUG] handleConnect called for service: ${service}`);
+    if (service === 'notion') {
+      console.log('[DEBUG] Using API client for Notion OAuth');
+      try {
+        // Use API client to get the redirect URL with proper authentication
+        console.log('[DEBUG] Making API request to /auth/notion');
+        const response = await api.get('/auth/notion');
+        console.log('[DEBUG] API response:', response.data);
+        if (response.data.redirect_url) {
+          console.log('[DEBUG] Redirecting to:', response.data.redirect_url);
+          window.location.href = response.data.redirect_url;
+        } else {
+          console.error('No redirect URL received from backend');
+        }
+      } catch (error) {
+        console.error('Error getting Notion OAuth URL:', error);
+        if (error.response?.status === 401) {
+          toast.error("Please login again to connect Notion");
+          navigate("/");
+        } else {
+          toast.error("Failed to connect Notion. Please try again.");
+        }
+      }
+    } else {
+      console.log('[DEBUG] Showing dialog for service:', service);
+      setSelectedService(service);
+      setShowDialog(true);
+    }
   };
 
   const handleCloseDialog = () => {
@@ -130,8 +156,8 @@ const ConnectApps = () => {
         </div>
       </div>
 
-      {/* Feature Coming Soon Dialog */}
-      {showDialog && (
+      {/* Feature Coming Soon Dialog - Only for non-Notion services */}
+      {showDialog && selectedService !== 'notion' && (
         <div className="dialog-overlay" onClick={handleCloseDialog}>
           <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
             <button className="dialog-close" onClick={handleCloseDialog}>

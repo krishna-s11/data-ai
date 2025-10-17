@@ -309,6 +309,51 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
           setMessages(prev => [...prev, { type: 'bot-html', html }]);
         }
       }
+    } else if (msg.action && msg.action.includes('Create Notion page')) {
+      // Handle Notion page creation
+      try {
+        const pageTitle = prompt('Enter a title for your Notion page:');
+        if (!pageTitle) return;
+        
+        const res = await api.post('/create_notion_page_direct', {
+          title: pageTitle,
+          content: 'This page was created by Data AI. You can add your notes here.',
+        });
+        
+        const html = `
+          <div style="margin-bottom: 1rem;">
+            <div><strong>📝 Notion page created successfully!</strong></div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
+              <strong>Title:</strong> ${pageTitle}
+            </div>
+            <div style="margin-top: 0.5rem;">
+              <a href="${res.data.details.url}" target="_blank" style="color: #60a5fa; text-decoration: underline;">
+                Open in Notion →
+              </a>
+            </div>
+          </div>
+        `;
+        setMessages(prev => [...prev, { type: 'bot-html', html }]);
+      } catch (error) {
+        console.error('Error creating Notion page:', error);
+        if (error.response?.status === 401) {
+          const html = `
+            <div style="margin-bottom: 1rem;">
+              <div><strong>📝 Notion not connected</strong></div>
+              <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
+                To create Notion pages, please connect your Notion account first.
+              </div>
+              <button onclick="window.location.href='/connect'" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #4681c3; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Connect Notion
+              </button>
+            </div>
+          `;
+          setMessages(prev => [...prev, { type: 'bot-html', html }]);
+        } else {
+          const html = `<div>Sorry, there was an error creating your Notion page. Please try again later.</div>`;
+          setMessages(prev => [...prev, { type: 'bot-html', html }]);
+        }
+      }
     }
   };
 
@@ -359,6 +404,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
               <button className="qa-btn" onClick={() => handleAction({ action: 'Connect your apps' })}>Connect apps</button>
               <button className="qa-btn" onClick={() => handleAction({ service: 'google_calendar', action: 'Show calendar' })}>Check calendar</button>
               <button className="qa-btn" onClick={() => handleAction({ service: 'notion', action: 'Show Notion pages' })}>Browse Notion</button>
+              <button className="qa-btn" onClick={() => handleAction({ action: 'Create Notion page' })}>Create note</button>
               <button className="qa-btn" onClick={() => handleAction({ service: 'gmail', action: 'List recent emails' })}>Review emails</button>
             </div>
           </div>
