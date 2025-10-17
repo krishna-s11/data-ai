@@ -331,6 +331,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         const res = await api.post('/create_notion_page_direct', {
           title: pageTitle,
           content: pageContent,
+          parent_page_id: null, // Let backend auto-select first available page
         });
         
         const html = `
