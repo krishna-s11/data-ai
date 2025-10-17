@@ -168,39 +168,33 @@ const ConnectApps = () => {
     try {
       console.log('[DEBUG] Processing OAuth callback with code:', code.substring(0, 10) + '...');
       
-      // Determine the backend URL based on environment
-      const backendUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:8000' 
-        : 'https://api.data-ai.co';
-      
-      // Call the backend callback endpoint directly
-      const response = await fetch(`${backendUrl}/auth/notion/callback?code=${code}&state=${state}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json'
-        }
+      // Use the existing API utility which handles authentication and base URL
+      const response = await api.post('/auth/notion/process-callback', {
+        code: code,
+        state: state
       });
       
-      if (response.ok) {
-        // If successful, redirect to success page
-        window.location.href = 'https://chat.data-ai.co/connect?notion=success';
-      } else {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
+      console.log('[DEBUG] Callback processing successful');
+      
+      // If successful, show success and refresh connections
+      setConnectedService('Notion');
+      setShowSuccessDialog(true);
+      await refreshConnections();
+      
+      // Clear URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
       
     } catch (error) {
       console.error('[ERROR] OAuth callback processing failed:', error);
       
-      if (error.message.includes('400')) {
+      if (error.response?.status === 400) {
         toast.error("Invalid OAuth parameters. Please try connecting again.");
-      } else if (error.message.includes('401')) {
+      } else if (error.response?.status === 401) {
         toast.error("OAuth state token is invalid. Please try connecting again.");
-      } else if (error.message.includes('500')) {
+      } else if (error.response?.status === 500) {
         toast.error("Failed to exchange OAuth code for tokens. Please try again.");
       } else {
-        toast.error("Connection failed. Please try again.");
+        toast.error(`Connection failed: ${error.message}`);
       }
       
       // Clear URL parameters and stay on page
