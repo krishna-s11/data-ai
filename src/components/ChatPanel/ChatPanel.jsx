@@ -311,8 +311,8 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
           setMessages(prev => [...prev, { type: 'bot-html', html }]);
         }
       }
-    } else if (msg.action && msg.action.includes('Create Notion page')) {
-      // Handle Notion page creation with smart note detection
+    } else if (msg.action && (msg.action.includes('Add to Notion page') || msg.action.includes('Create Notion page'))) {
+      // Handle Notion page content addition with smart note detection
       try {
         // Use smart detection data if available, otherwise prompt for title
         let pageTitle, pageContent;
@@ -323,44 +323,41 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
           pageContent = msg.note_content;
         } else {
           // Fallback to manual input
-          pageTitle = prompt('Enter a title for your Notion page:');
+          pageTitle = prompt('Enter a title for your note:');
           if (!pageTitle) return;
-          pageContent = 'This page was created by Data AI. You can add your notes here.';
+          pageContent = 'This note was added by Data AI.';
         }
         
-        const res = await api.post('/create_notion_page_direct', {
+        const res = await api.post('/append_to_notion_page', {
           title: pageTitle,
           content: pageContent,
-          parent_page_id: null, // Let backend auto-select first available page
         });
         
         const html = `
           <div style="margin-bottom: 1rem;">
-            <div><strong>📝 Notion page created successfully!</strong></div>
+            <div><strong>📝 Note added to Notion successfully!</strong></div>
             <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
               <strong>Title:</strong> ${pageTitle}
             </div>
-            ${pageContent && pageContent !== 'This page was created by Data AI. You can add your notes here.' ? `
+            ${pageContent && pageContent !== 'This note was added by Data AI.' ? `
               <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
                 <strong>Content:</strong> ${pageContent.length > 100 ? pageContent.substring(0, 100) + '...' : pageContent}
               </div>
             ` : ''}
-            <div style="margin-top: 0.5rem;">
-              <a href="${res.data.details.url}" target="_blank" style="color: #60a5fa; text-decoration: underline;">
-                Open in Notion →
-              </a>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
+              <strong>Added to:</strong> Your Notion page
             </div>
           </div>
         `;
         setMessages(prev => [...prev, { type: 'bot-html', html }]);
       } catch (error) {
-        console.error('Error creating Notion page:', error);
+        console.error('Error adding to Notion page:', error);
         if (error.response?.status === 401) {
           const html = `
             <div style="margin-bottom: 1rem;">
               <div><strong>📝 Notion not connected</strong></div>
               <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
-                To create Notion pages, please connect your Notion account first.
+                To add notes to Notion, please connect your Notion account first.
               </div>
               <button onclick="window.location.href='/connect'" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #4681c3; color: white; border: none; border-radius: 4px; cursor: pointer;">
                 Connect Notion
@@ -369,7 +366,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
           `;
           setMessages(prev => [...prev, { type: 'bot-html', html }]);
         } else {
-          const html = `<div>Sorry, there was an error creating your Notion page. Please try again later.</div>`;
+          const html = `<div>Sorry, there was an error adding to your Notion page. Please try again later.</div>`;
           setMessages(prev => [...prev, { type: 'bot-html', html }]);
         }
       }
