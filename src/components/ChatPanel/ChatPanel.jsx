@@ -214,7 +214,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
             </div>
             <div class="note-preview-actions">
               <button class="note-save-btn" onclick="window.saveNoteToNotion('${msg.note_title || ''}', '${(msg.note_content || '').replace(/'/g, "\\'")}')">
-                💾 Save to Notion
+                Save to Notion
               </button>
             </div>
           </div>
