@@ -313,6 +313,8 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
       }
     } else if (msg.action && (msg.action.includes('Add to Notion page') || msg.action.includes('Create Notion page'))) {
       // Handle Notion page content addition with smart note detection
+      console.log('Handling Notion page action:', msg.action);
+      console.log('Message data:', msg);
       try {
         // Use smart detection data if available, otherwise prompt for title
         let pageTitle, pageContent;
@@ -321,17 +323,22 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
           // Use smart detection data
           pageTitle = msg.note_title;
           pageContent = msg.note_content;
+          console.log('Using smart detection data:', { pageTitle, pageContent });
         } else {
           // Fallback to manual input
           pageTitle = prompt('Enter a title for your note:');
           if (!pageTitle) return;
           pageContent = 'This note was added by Data AI.';
+          console.log('Using manual input:', { pageTitle, pageContent });
         }
         
+        console.log('Making API call to /append_to_notion_page with:', { title: pageTitle, content: pageContent });
         const res = await api.post('/append_to_notion_page', {
           title: pageTitle,
           content: pageContent,
         });
+        
+        console.log('API response:', res.data);
         
         const html = `
           <div style="margin-bottom: 1rem;">
@@ -352,6 +359,8 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         setMessages(prev => [...prev, { type: 'bot-html', html }]);
       } catch (error) {
         console.error('Error adding to Notion page:', error);
+        console.error('Error details:', error.response?.data);
+        console.error('Error status:', error.response?.status);
         if (error.response?.status === 401) {
           const html = `
             <div style="margin-bottom: 1rem;">
