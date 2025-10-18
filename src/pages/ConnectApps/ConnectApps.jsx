@@ -95,6 +95,28 @@ const ConnectApps = () => {
           toast.error("Failed to connect Notion. Please try again.");
         }
       }
+    } else if (service === 'zoom') {
+      console.log('[DEBUG] Using API client for Zoom OAuth');
+      try {
+        // Use API client to get the redirect URL with proper authentication
+        console.log('[DEBUG] Making API request to /auth/zoom');
+        const response = await api.get('/auth/zoom');
+        console.log('[DEBUG] API response:', response.data);
+        if (response.data.redirect_url) {
+          console.log('[DEBUG] Redirecting to:', response.data.redirect_url);
+          window.location.href = response.data.redirect_url;
+        } else {
+          console.error('No redirect URL received from backend');
+        }
+      } catch (error) {
+        console.error('Error getting Zoom OAuth URL:', error);
+        if (error.response?.status === 401) {
+          toast.error("Please login again to connect Zoom");
+          navigate("/");
+        } else {
+          toast.error("Failed to connect Zoom. Please try again.");
+        }
+      }
     } else {
       console.log('[DEBUG] Showing dialog for service:', service);
       setSelectedService(service);
@@ -264,8 +286,8 @@ const ConnectApps = () => {
         </div>
       )}
 
-      {/* Feature Coming Soon Dialog - Only for non-Notion services */}
-      {showDialog && selectedService !== 'notion' && (
+      {/* Feature Coming Soon Dialog - Only for non-Notion and non-Zoom services */}
+      {showDialog && selectedService !== 'notion' && selectedService !== 'zoom' && (
         <div className="dialog-overlay" onClick={handleCloseDialog}>
           <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
             <button className="dialog-close" onClick={handleCloseDialog}>
