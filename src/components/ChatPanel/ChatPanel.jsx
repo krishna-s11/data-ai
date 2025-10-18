@@ -196,6 +196,9 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
     const now = new Date();
     const messageLower = message.toLowerCase();
     
+    console.log('Parsing time from message:', message);
+    console.log('Current time:', now.toISOString());
+    
     // Default values
     let startTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
     let duration = 30; // 30 minutes default
@@ -205,26 +208,37 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
       const tomorrow = new Date(now);
       tomorrow.setDate(tomorrow.getDate() + 1);
       
-      // Extract time (2pm, 2:30pm, 14:00, etc.)
-      const timeMatch = messageLower.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+      console.log('Tomorrow date:', tomorrow.toDateString());
+      
+      // Extract time (2pm, 2:30pm, 14:00, etc.) - improved regex
+      const timeMatch = messageLower.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)?/);
+      console.log('Time match:', timeMatch);
+      
       if (timeMatch) {
         let hours = parseInt(timeMatch[1]);
         const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
-        const period = timeMatch[3];
+        const period = timeMatch[3] ? timeMatch[3].toLowerCase() : '';
+        
+        console.log('Parsed time:', { hours, minutes, period });
         
         // Convert to 24-hour format
-        if (period === 'pm' && hours !== 12) {
+        if (period.includes('pm') && hours !== 12) {
           hours += 12;
-        } else if (period === 'am' && hours === 12) {
+        } else if (period.includes('am') && hours === 12) {
           hours = 0;
         }
         
+        console.log('Final hours:', hours);
+        
         tomorrow.setHours(hours, minutes, 0, 0);
         startTime = tomorrow;
+        
+        console.log('Final start time:', startTime.toISOString());
       } else {
         // Default to 2pm tomorrow if no specific time
         tomorrow.setHours(14, 0, 0, 0);
         startTime = tomorrow;
+        console.log('No time match, using default 2pm:', startTime.toISOString());
       }
     }
     
@@ -232,15 +246,15 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
     else if (messageLower.includes('today')) {
       const today = new Date(now);
       
-      const timeMatch = messageLower.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+      const timeMatch = messageLower.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)?/);
       if (timeMatch) {
         let hours = parseInt(timeMatch[1]);
         const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
-        const period = timeMatch[3];
+        const period = timeMatch[3] ? timeMatch[3].toLowerCase() : '';
         
-        if (period === 'pm' && hours !== 12) {
+        if (period.includes('pm') && hours !== 12) {
           hours += 12;
-        } else if (period === 'am' && hours === 12) {
+        } else if (period.includes('am') && hours === 12) {
           hours = 0;
         }
         
@@ -262,10 +276,15 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
       }
     }
     
-    return {
+    const result = {
       start_time: startTime.toISOString(),
       duration: duration
     };
+    
+    console.log('Final parsed time result:', result);
+    console.log('Start time in local timezone:', startTime.toString());
+    console.log('Start time in UTC:', startTime.toISOString());
+    return result;
   };
   
   // Helper function to extract meeting topic from user message
