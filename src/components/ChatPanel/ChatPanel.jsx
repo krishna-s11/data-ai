@@ -300,9 +300,13 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         };
         
         try {
-          const res = await api.post('/execute_task', {
-            action: 'Create Zoom meeting',
-            event_summary: meetingData.topic,
+          // Debug: Check if token exists
+          const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+          console.log('Token exists:', !!token);
+          console.log('Token preview:', token ? token.substring(0, 50) + '...' : 'No token');
+          
+          const res = await api.post('/create_zoom_meeting_direct', {
+            topic: meetingData.topic,
             start_time: meetingData.start_time,
             duration: meetingData.duration
           });
