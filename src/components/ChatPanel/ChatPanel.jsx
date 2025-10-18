@@ -283,6 +283,72 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         }
         console.log(res.data.messages);
         setMessages(prev => [...prev, { type: 'bot-html', html }]);
+      } else if (msg.service === 'zoom' && msg.action === 'Create Zoom meeting') {
+        // Handle Zoom meeting creation
+        console.log('Creating Zoom meeting...');
+        
+        // Extract meeting details from the conversation context
+        const recentMessages = messages.slice(-10); // Get last 10 messages for context
+        const userMessages = recentMessages.filter(m => m.type === 'user');
+        const lastUserMessage = userMessages[userMessages.length - 1]?.text || 'AI Meeting';
+        
+        // Create meeting data
+        const meetingData = {
+          topic: lastUserMessage,
+          start_time: new Date().toISOString(),
+          duration: 30 // Default 30 minutes
+        };
+        
+        try {
+          const res = await api.post('/execute_task', {
+            action: 'Create Zoom meeting',
+            event_summary: meetingData.topic,
+            start_time: meetingData.start_time,
+            duration: meetingData.duration
+          });
+          
+          console.log('Zoom meeting created:', res.data);
+          
+          // Display the meeting details
+          const meetingHtml = `
+            <div class="zoom-meeting-card">
+              <div class="meeting-header">
+                <div class="meeting-icon">🎥</div>
+                <div class="meeting-title">Zoom Meeting Created!</div>
+              </div>
+              <div class="meeting-details">
+                <div class="meeting-topic"><strong>Topic:</strong> ${meetingData.topic}</div>
+                <div class="meeting-link">
+                  <strong>Meeting Link:</strong> 
+                  <a href="${res.data.zoom.zoom_link}" target="_blank" style="color: #60a5fa; text-decoration: underline;">
+                    Join Meeting
+                  </a>
+                </div>
+                <div class="meeting-id"><strong>Meeting ID:</strong> ${res.data.zoom.meeting_id}</div>
+                <div class="meeting-time"><strong>Start Time:</strong> ${new Date(res.data.zoom.start_time).toLocaleString()}</div>
+              </div>
+            </div>
+          `;
+          
+          setMessages(prev => [...prev, { type: 'bot-html', html: meetingHtml }]);
+          
+        } catch (error) {
+          console.error('Error creating Zoom meeting:', error);
+          let errorMessage = 'Failed to create Zoom meeting. ';
+          
+          if (error.response?.status === 401) {
+            errorMessage += 'Please connect your Zoom account first.';
+          } else if (error.response?.status === 500) {
+            errorMessage += 'There was an error with the Zoom service.';
+          } else {
+            errorMessage += 'Please try again.';
+          }
+          
+          setMessages(prev => [...prev, { 
+            type: 'bot', 
+            text: errorMessage 
+          }]);
+        }
       }
     } catch (error) {
       console.error('Error in handleAction:', error);
