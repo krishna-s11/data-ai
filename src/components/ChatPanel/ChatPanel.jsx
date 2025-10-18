@@ -191,6 +191,98 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
     }
   };
 
+  // Helper function to parse meeting time from user message
+  const parseMeetingTime = (message) => {
+    const now = new Date();
+    const messageLower = message.toLowerCase();
+    
+    // Default values
+    let startTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
+    let duration = 30; // 30 minutes default
+    
+    // Parse "tomorrow" + time
+    if (messageLower.includes('tomorrow')) {
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      // Extract time (2pm, 2:30pm, 14:00, etc.)
+      const timeMatch = messageLower.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+      if (timeMatch) {
+        let hours = parseInt(timeMatch[1]);
+        const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
+        const period = timeMatch[3];
+        
+        // Convert to 24-hour format
+        if (period === 'pm' && hours !== 12) {
+          hours += 12;
+        } else if (period === 'am' && hours === 12) {
+          hours = 0;
+        }
+        
+        tomorrow.setHours(hours, minutes, 0, 0);
+        startTime = tomorrow;
+      } else {
+        // Default to 2pm tomorrow if no specific time
+        tomorrow.setHours(14, 0, 0, 0);
+        startTime = tomorrow;
+      }
+    }
+    
+    // Parse "today" + time
+    else if (messageLower.includes('today')) {
+      const today = new Date(now);
+      
+      const timeMatch = messageLower.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+      if (timeMatch) {
+        let hours = parseInt(timeMatch[1]);
+        const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
+        const period = timeMatch[3];
+        
+        if (period === 'pm' && hours !== 12) {
+          hours += 12;
+        } else if (period === 'am' && hours === 12) {
+          hours = 0;
+        }
+        
+        today.setHours(hours, minutes, 0, 0);
+        startTime = today;
+      }
+    }
+    
+    // Parse duration (1 hour, 2 hours, 30 minutes, etc.)
+    const durationMatch = messageLower.match(/(\d+)\s*(hour|hr|minute|min)/);
+    if (durationMatch) {
+      const value = parseInt(durationMatch[1]);
+      const unit = durationMatch[2];
+      
+      if (unit.includes('hour') || unit.includes('hr')) {
+        duration = value * 60; // Convert hours to minutes
+      } else {
+        duration = value; // Already in minutes
+      }
+    }
+    
+    return {
+      start_time: startTime.toISOString(),
+      duration: duration
+    };
+  };
+  
+  // Helper function to extract meeting topic from user message
+  const extractMeetingTopic = (message) => {
+    // Remove common scheduling words to get the actual topic
+    const topic = message
+      .replace(/\b(schedule|book|arrange|create|set up|setup)\b/gi, '')
+      .replace(/\b(a meeting|meeting|call|video call|zoom call)\b/gi, '')
+      .replace(/\b(for|at|on|tomorrow|today|next week|this week)\b/gi, '')
+      .replace(/\b(\d{1,2}(?::\d{2})?\s*(am|pm)?)\b/gi, '')
+      .replace(/\b(\d+\s*(hour|hr|minute|min)s?)\b/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    return topic || 'AI Meeting';
+  };
+
   const handleAction = async (msg) => {
     console.log(msg);
     try {
@@ -292,11 +384,14 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         const userMessages = recentMessages.filter(m => m.type === 'user');
         const lastUserMessage = userMessages[userMessages.length - 1]?.text || 'AI Meeting';
         
+        // Parse meeting time from user message
+        const parsedTime = parseMeetingTime(lastUserMessage);
+        
         // Create meeting data
         const meetingData = {
-          topic: lastUserMessage,
-          start_time: new Date().toISOString(),
-          duration: 30 // Default 30 minutes
+          topic: extractMeetingTopic(lastUserMessage),
+          start_time: parsedTime.start_time,
+          duration: parsedTime.duration
         };
         
         try {
