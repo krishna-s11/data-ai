@@ -277,14 +277,13 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
     }
     
     const result = {
-      start_time: startTime.toISOString().replace('Z', ''), // Remove Z to send local time
+      start_time: startTime.toISOString(),
       duration: duration
     };
     
     console.log('Final parsed time result:', result);
     console.log('Start time in local timezone:', startTime.toString());
     console.log('Start time in UTC:', startTime.toISOString());
-    console.log('Sending to backend:', result.start_time);
     return result;
   };
   
