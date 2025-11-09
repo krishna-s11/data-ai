@@ -11,21 +11,21 @@ const OnboardingDialog = ({ isOpen, onClose }) => {
   const pages = [
     {
       title: "Congratulations on Your Free 7-Day Pro Trial!",
-      content: "We're excited to offer you a complimentary 7-day Pro trial. This trial grants you full access to all premium features, allowing you to experience the full potential of Data AI.",
+      content: "We're excited to offer you a complimentary 7-day Pro trial. This trial grants you full access to all premium features, allowing you to experience the full potential of Nerve AI by Nerve Protocol.",
       icon: "🎉",
-      gradient: "linear-gradient(135deg, #135DFC, #3f83f8)"
+      gradient: "linear-gradient(135deg, rgba(8,203,0,0.9), rgba(6,152,0,0.9))"
     },
     {
       title: "Your Privacy is Our Priority",
-      content: "At Data AI, we prioritize your privacy. Unlike other AI platforms, we ensure that all your chats are stored and processed directly on your device's browser. This means your data never leaves your device, providing you with complete control and peace of mind.",
+      content: "At Nerve AI by Nerve Protocol, we prioritize your privacy. Unlike other AI platforms, we ensure that all your chats are stored and processed directly on your device's browser. This means your data never leaves your device, providing you with complete control and peace of mind.",
       icon: <FaShieldAlt />,
-      gradient: "linear-gradient(135deg, #10B981, #34D399)"
+      gradient: "linear-gradient(135deg, rgba(8,203,0,0.85), rgba(5,120,0,0.85))"
     },
     {
       title: "Why Privacy Matters",
-      content: "Many AI agents, such as ChatGPT, Gemini, and Grok, collect and store your data without explicit permission. Data AI is different. Our platform enables you to connect your daily services and interact with large language models without compromising your privacy. By keeping your data on your device, we eliminate the risks associated with data breaches and unauthorized access.",
+      content: "Many AI agents, such as ChatGPT, Gemini, and Grok, collect and store your data without explicit permission. Nerve AI by Nerve Protocol is different. Our platform enables you to connect your daily services and interact with large language models without compromising your privacy. By keeping your data on your device, we eliminate the risks associated with data breaches and unauthorized access.",
       icon: <FaLock />,
-      gradient: "linear-gradient(135deg, #F59E0B, #FBBF24)"
+      gradient: "linear-gradient(135deg, rgba(8,203,0,0.7), rgba(4,90,0,0.7))"
     }
   ];
 
@@ -84,8 +84,8 @@ const OnboardingDialog = ({ isOpen, onClose }) => {
 
           <div className="onboarding-header">
             <div className="onboarding-logo-container">
-              <img src={dataAiLogo} alt="Data AI" className="onboarding-logo" />
-              <div className="onboarding-brand-text">Data AI</div>
+              <img src={dataAiLogo} alt="Nerve AI by Nerve Protocol" className="onboarding-logo" />
+              <div className="onboarding-brand-text">Nerve AI</div>
             </div>
           </div>
 

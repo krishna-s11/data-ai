@@ -114,13 +114,16 @@ const HomeLayout = () => {
       }
     };
 
-    window.addEventListener('dataai:title', handleTitleEvent);
+    window.addEventListener('nerveai:title', handleTitleEvent);
     const handleMiniTitle = (event) => {
       const shortTitle = event.detail;
       if (shortTitle) setMiniTitle(shortTitle);
     };
-    window.addEventListener('dataai:title:mini', handleMiniTitle);
-    return () => window.removeEventListener('dataai:title', handleTitleEvent);
+    window.addEventListener('nerveai:title:mini', handleMiniTitle);
+    return () => {
+      window.removeEventListener('nerveai:title', handleTitleEvent);
+      window.removeEventListener('nerveai:title:mini', handleMiniTitle);
+    };
   }, [conversationTitle, typingTitle]);
 
   // Persist title updates to current conversation

@@ -1,5 +1,5 @@
 // Local conversations utility for storing and retrieving chats in the browser
-const STORAGE_KEY = 'dataai:conversations';
+const STORAGE_KEY = 'nerveai:conversations';
 
 function safeParse(json) {
   try {

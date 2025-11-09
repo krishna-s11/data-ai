@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './chatPanel.css';
 import { FaShareAlt, FaChevronDown, FaArrowUp, FaClock } from 'react-icons/fa';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import logo from '../../assets/logo.png';
 import api from '../../utility/api';
 import { useNavigate } from 'react-router-dom';
@@ -66,13 +68,13 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
     setMessages(prev => [...prev, userMessage, loadingMessage]);
 
     try {
-      // Special structured response for "what is data ai"
-      if (/^\s*what\s+is\s+data\s*ai\??\s*$/i.test(trimmed)) {
+      // Special structured response for "what is nerve ai" (legacy branding queries still supported)
+      if (/^\s*what\s+is\s+(nerve|data)\s*ai\??\s*$/i.test(trimmed)) {
         setMessages(prev => prev.filter(msg => msg.type !== 'bot-loading'));
         const botId = `bot_${Date.now()}`;
         // Streamed HTML content with headings and bullet points
         const htmlContent = [
-          '<div><strong>Data AI</strong> is your privacy-first personal assistant that connects your everyday tools to help you act faster.</div>',
+          '<div><strong>Nerve AI</strong> by <strong>Nerve Protocol</strong> is your privacy-first personal assistant that connects your everyday tools to help you act faster.</div>',
           '<div style="margin-top:0.5rem;">Here\'s what it does:</div>',
           '<ul style="margin:0.5rem 0 0.25rem 1.25rem;">',
           '<li><strong>Connects your apps</strong>: Google Calendar, Gmail, Notion, Slack, Zoom.</li>',
@@ -172,10 +174,10 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
           const shortTitle = tRes.data?.short_title || '';
           // Dispatch both full and short titles
           if (fullTitle) {
-            window.dispatchEvent(new CustomEvent('dataai:title', { detail: fullTitle }));
+            window.dispatchEvent(new CustomEvent('nerveai:title', { detail: fullTitle }));
           }
           if (shortTitle) {
-            window.dispatchEvent(new CustomEvent('dataai:title:mini', { detail: shortTitle }));
+            window.dispatchEvent(new CustomEvent('nerveai:title:mini', { detail: shortTitle }));
           }
         } catch (e) {
           // ignore title errors
@@ -184,7 +186,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
     } catch (error) {
       setMessages(prev => [
         ...prev.filter(msg => msg.type !== 'bot-loading'),
-        { type: 'bot', text: 'Oops! Failed to connect to Data AI.' },
+        { type: 'bot', text: 'Oops! Failed to connect to Nerve AI.' },
       ]);
     } finally {
       setLoading(false);
@@ -480,10 +482,10 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         const html = `
           <div style="margin-bottom: 1rem;">
             <div><strong>🔌 ${serviceName} not connected</strong></div>
-            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;">
+            <div style="font-size: 0.9rem; color: var(--muted); margin-top: 0.5rem;">
               To use this feature, please connect your ${serviceName} account first.
             </div>
-            <button onclick="window.location.href='/connect'" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #4681c3; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            <button onclick="window.location.href='/connect'" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, rgba(8,203,0,0.95), rgba(6,152,0,0.95)); color: var(--text-strong); border: 1px solid rgba(8,203,0,0.45); border-radius: 8px; cursor: pointer;">
               Connect ${serviceName}
             </button>
           </div>
@@ -510,12 +512,12 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
       console.log('API response:', res.data);
       
       const html = `
-        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border-left: 4px solid #22c55e;">
-          <div style="color: #22c55e; font-weight: 600; margin-bottom: 0.5rem;">✅ Note saved successfully!</div>
-          <div style="font-size: 0.9rem; color: #ccc;">
+        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(8,203,0,0.12); border-radius: 10px; border-left: 4px solid rgba(8,203,0,0.45);">
+          <div style="color: var(--text-strong); font-weight: 600; margin-bottom: 0.5rem;">✅ Note saved successfully!</div>
+          <div style="font-size: 0.9rem; color: var(--text);">
             <strong>Title:</strong> ${title}
           </div>
-          <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.25rem;">
+          <div style="font-size: 0.9rem; color: var(--muted); margin-top: 0.25rem;">
             <strong>Content:</strong> ${content.length > 100 ? content.substring(0, 100) + '...' : content}
           </div>
         </div>
@@ -526,9 +528,9 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
       console.error('Error saving note:', error);
       
       const errorHtml = `
-        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 4px solid #ef4444;">
-          <div style="color: #ef4444; font-weight: 600; margin-bottom: 0.5rem;">❌ Failed to save note</div>
-          <div style="font-size: 0.9rem; color: #ccc;">
+        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(239,68,68,0.12); border-radius: 10px; border-left: 4px solid rgba(239,68,68,0.6);">
+          <div style="color: #ff7b7b; font-weight: 600; margin-bottom: 0.5rem;">❌ Failed to save note</div>
+          <div style="font-size: 0.9rem; color: var(--muted);">
             Please try again or check your Notion connection.
           </div>
         </div>
@@ -545,7 +547,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
     try {
       const text = messages.map(m => `${m.type === 'user' ? 'You' : 'AI'}: ${m.text || m.description || ''}`).join('\n');
       if (navigator.share) {
-        await navigator.share({ title: 'Data AI chat', text });
+        await navigator.share({ title: 'Nerve AI chat', text });
         return;
       }
       await navigator.clipboard.writeText(text);
@@ -565,8 +567,8 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
       {/* Header */}
       <div className="chat-header">
         <div className="chat-title">
-          <span className={typingTitle ? 'typing-title' : ''}>{title || 'Data AI'}</span>
-          <span className="subhead">{title ? 'Conversation' : 'Private assistant'}</span>
+          <span className={typingTitle ? 'typing-title' : ''}>{title || 'Nerve AI'}</span>
+          <span className="subhead">{title ? 'Conversation' : 'By Nerve Protocol'}</span>
         </div>
         <div className="toolbar">
           <button className="tool-btn" title="Share" onClick={handleShare}>
@@ -579,7 +581,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
       <div className="chat-messages">
         {showWelcome && (
           <div className="welcome-hero">
-            <h1 style={{ color: '#4681c3', fontSize: '3rem', marginBottom: '2rem', fontFamily: 'Arial, sans-serif' }}>Hello{user?.username ? `, ${user.username}` : ''}</h1>
+            <h1 className="matrix-greeting">Hello{user?.username ? `, ${user.username}` : ''}</h1>
             <p className="muted">Here are some quick actions to get started</p>
             <div className="quick-actions">
               <button className="qa-btn" onClick={() => handleAction({ action: 'Connect your apps' })}>Connect apps</button>
@@ -600,7 +602,9 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
               {/* Bot Text */}
               {msg.type === 'bot' && (
                 <div className="bubble bot-bubble">
-                  {msg.text}
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.text || ''}
+                  </ReactMarkdown>
                   {msg.timestamp && (
                     <div className="meta"><FaClock /> {new Date(msg.timestamp).toLocaleTimeString()}</div>
                   )}
@@ -699,7 +703,7 @@ const ChatPanel = ({ messages, setMessages, title, typingTitle }) => {
         <input
           ref={inputRef}
           type="text"
-          placeholder={loading ? "Waiting for response..." : "Reply to Data AI..."}
+          placeholder={loading ? "Waiting for response..." : "Reply to Nerve AI..."}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}

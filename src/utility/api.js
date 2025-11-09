@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+const API_BASE_URL = 'https://backend.nerve-protocol.com';
+
 const api = axios.create({
-  baseURL: 'https://dataai.pilotai.info',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': 'true',
@@ -37,7 +39,9 @@ api.interceptors.response.use(
         '/send_gmail',
         '/create_notion_page',
         '/post_to_slack',
-        '/create_zoom_meeting'
+        '/create_zoom_meeting',
+        '/execute_task',
+        '/create_zoom_meeting_direct'
       ];
       
       const isServiceEndpoint = serviceEndpoints.some(endpoint => 
@@ -52,7 +56,7 @@ api.interceptors.response.use(
           originalRequest._retry = true;
           
           try {
-            const response = await axios.post('https://dataai.pilotai.info/auth/refresh', {
+            const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
               refresh_token: refreshToken
             });
             

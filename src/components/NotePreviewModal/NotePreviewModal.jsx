@@ -165,7 +165,7 @@ const NotePreviewModal = ({ isOpen, onClose, onSave, initialTitle, initialConten
                 </div>
               )}
               <div className="preview-footer">
-                <em>Added by Data AI on {new Date().toLocaleString()}</em>
+                <em>Added by Nerve AI by Nerve Protocol on {new Date().toLocaleString()}</em>
               </div>
             </div>
           </div>

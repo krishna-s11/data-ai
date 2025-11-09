@@ -270,11 +270,11 @@ const ConnectApps = () => {
               <div className="success-icon">
                 <FaCheck />
               </div>
-              <div className="dialog-brand-text">Data AI</div>
+              <div className="dialog-brand-text">Nerve AI</div>
             </div>
             <h2 className="dialog-title">Successfully Connected!</h2>
             <p className="dialog-message">
-              Your {connectedService} account has been successfully connected to Data AI. 
+              Your {connectedService} account has been successfully connected to Nerve AI by Nerve Protocol. 
               You can now use {connectedService} features in your conversations.
             </p>
             <div className="dialog-actions">
@@ -294,8 +294,8 @@ const ConnectApps = () => {
               <FaTimes />
             </button>
             <div className="dialog-icon">
-              <img src={dataAiLogo} alt="Data AI" className="dialog-logo" />
-              <div className="dialog-brand-text">Data AI</div>
+              <img src={dataAiLogo} alt="Nerve AI by Nerve Protocol" className="dialog-logo" />
+              <div className="dialog-brand-text">Nerve AI</div>
             </div>
             <h2 className="dialog-title">Feature Coming Soon!</h2>
             <p className="dialog-message">

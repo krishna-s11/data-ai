@@ -60,12 +60,12 @@ const AuthPage = () => {
     <div className="homepage">
       <div className="left-panel dark">
         <div className="left-content">
-          <div className="logo-title" onClick={() => { window.location.href = 'https://data-ai.co' }}>
+          <div className="logo-title" onClick={() => { window.location.href = 'https://nerveprotocol.com' }}>
             <img src={logo} alt="Logo" className="logo-img" />
-            <h1 className="brand">Data AI</h1>
+            <h1 className="brand">Nerve AI</h1>
           </div>
-          <h2 className="headline">Your ideas,<br />amplified</h2>
-          <p className="subtext">Privacy-first AI that helps you create in confidence.</p>
+          <h2 className="headline">Ready to escape <br></br>The Matrix?</h2>
+          <p className="subtext">Follow the rabbit and disappear, Nerve AI <br></br>by Nerve Protocol sees without being seen.</p>
 
           <form className="login-box fade-in" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
             {isRegistering && (
@@ -131,28 +131,6 @@ const AuthPage = () => {
         </div>
       </div>
 
-      <div className="right-panel light center-content">
-        <div className="chat-bubble slide-in">
-          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" className="avatar" />
-          <p>Hi Data AI! Can you visualize my sales funnel from awareness to purchase using bar graphs?</p>
-        </div>
-
-        <div className="response-box fade-in">
-          <div className="chart-wrapper">
-            <div className="chat-overlay">Here’s your sales funnel.</div>
-            <div className="chart-box small-chart">
-              <h4>Sales funnel</h4>
-              <div className="bars">
-                <div className="bar animated-bar" style={{ height: '80%' }} title="Ad view">Ad view</div>
-                <div className="bar animated-bar" style={{ height: '50%' }} title="Email open">Email open</div>
-                <div className="bar animated-bar" style={{ height: '30%' }} title="Website Visit">Website Visit</div>
-                <div className="bar animated-bar" style={{ height: '15%' }} title="Product Demo">Product Demo</div>
-                <div className="bar animated-bar" style={{ height: '10%' }} title="Purchase">Purchase</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

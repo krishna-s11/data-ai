@@ -137,7 +137,7 @@ const Sidebar = ({ closeSidebar, currentTitle, typingTitle, miniTitle, conversat
         <img src={logo} alt="Logo" className="sidebar-logo" />
         {!collapsed && (
           <div className="brand-row">
-            <h2 className="sidebar-title">Data AI</h2>
+            <h2 className="sidebar-title">Nerve AI</h2>
             <span className="beta-badge">Pro</span>
           </div>
         )}
@@ -275,7 +275,7 @@ const Sidebar = ({ closeSidebar, currentTitle, typingTitle, miniTitle, conversat
               ))
           ) : (
             <div className="chat-item">
-              <span className={typingTitle ? 'typing-title' : ''}>{miniTitle || currentTitle || 'Welcome to Data AI'}</span>
+              <span className={typingTitle ? 'typing-title' : ''}>{miniTitle || currentTitle || 'Welcome to Nerve AI'}</span>
             </div>
           )}
         </div>
